@@ -1,0 +1,228 @@
+.dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .dialog input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .dialog button {
+    padding: 8px 12px;
+    border: none;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .dialog button:disabled {
+    background: gray;
+    cursor: not-allowed;
+  }
+  
+  
+.ledger-container {
+    padding: 20px;
+  }
+  
+  .filter-container {
+    margin-bottom: 10px;
+  }
+  
+  .ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .ledger-table th, .ledger-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .ledger-table th {
+    background-color: #f4f4f4;
+  }
+  
+  .pending {
+    color: red;
+  }
+  
+  .received {
+    color: green;
+  }
+  
+  .mark-received-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .mark-received-btn:hover {
+    background-color: #45a049;
+  }
+
+  button{
+    margin: 2px;
+  }
+
+  /* General Ledger Container Styles */
+.ledger-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Headline Section */
+.headline-container h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Filters Section */
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1; /* Take equal width */
+  min-width: 150px; /* Ensure flexibility */
+}
+
+.filter-group label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Table Styles */
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ledger-table th,
+.ledger-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.ledger-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #333;
+}
+
+.ledger-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Payment Status Styles */
+.received img {
+  width: 20px;
+  height: 20px;
+}
+
+.pending img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Buttons in Actions Column */
+.ledger-table button {
+  margin-right: 5px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+.ledger-table button:nth-child(1) {
+  background-color: #f0ad4e;
+}
+
+.ledger-table button:nth-child(2) {
+  background-color: #5cb85c;
+}
+
+.ledger-table button:hover {
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headline-container h2 {
+    font-size: 20px;
+    text-align: left;
+  }
+
+  .ledger-table {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ledger-container {
+    padding: 10px;
+  }
+
+  .filters-container {
+    gap: 10px;
+  }
+
+  .filter-group label {
+    font-size: 12px;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .ledger-table th,
+  .ledger-table td {
+    padding: 8px 5px;
+  }
+}
+
+  

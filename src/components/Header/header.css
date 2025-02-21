@@ -1,0 +1,30 @@
+/* header.css */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #282c34;
+    padding: 10px 20px;
+  }
+  
+  .menu {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .menu button {
+    background-color: #61dafb;
+    border: none;
+    color: black;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+  }
+  
+  .menu button:hover {
+    background-color: #21a1f1;
+    color: white;
+  }
+  
