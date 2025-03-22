@@ -50,7 +50,7 @@ const Dispatch = () => {
 
   const fetchChallanData = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/challan", {
+      const response = await fetch("https://iv.dakshabhi.com/api/challan", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -80,7 +80,7 @@ const Dispatch = () => {
     try {
       // Step 1: Update single toParty status via API
       const response = await fetch(
-        "http://localhost:8080/api/challanToParties/updateStatus",
+        "https://iv.dakshabhi.com/api/challanToParties/updateStatus",
         {
           method: "PUT",
           headers: {
@@ -148,7 +148,7 @@ const Dispatch = () => {
     if(status != "DELIVERED"){
       status = "PENDING"
     }
-    const response = await fetch("http://localhost:8080/api/challan/updateStatus", {
+    const response = await fetch("https://iv.dakshabhi.com/api/challan/updateStatus", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

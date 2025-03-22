@@ -63,7 +63,7 @@ export function home() {
 
    const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/products', {
+      const response = await fetch('https://iv.dakshabhi.com/api/products', {
         method: 'GET',  // Method is GET by default, so it's optional here
         headers: {
           'Content-Type': 'application/json', // This is typically included for APIs that return JSON
@@ -83,7 +83,7 @@ export function home() {
 
   const fetchPfCustomersList = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/pf/customers', {
+      const response = await fetch('https://iv.dakshabhi.com/api/pf/customers', {
         method: 'GET',  // Method is GET by default, so it's optional here
         headers: {
           'Content-Type': 'application/json', // This is typically included for APIs that return JSON
@@ -103,7 +103,7 @@ export function home() {
 
   const fetchTpCustomersList = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/tp/customers', {
+      const response = await fetch('https://iv.dakshabhi.com/api/tp/customers', {
         method: 'GET',  // Method is GET by default, so it's optional here
         headers: {
           'Content-Type': 'application/json', // This is typically included for APIs that return JSON
@@ -124,7 +124,7 @@ export function home() {
   const fetchHomePageStat = async () => {
     try {
       debugger
-      const response = await fetch('http://localhost:8080/api/challanToParties/homePageStat', {
+      const response = await fetch('https://iv.dakshabhi.com/api/challanToParties/homePageStat', {
         method: 'GET',  // Method is GET by default, so it's optional here
         headers: {
           'Content-Type': 'application/json', // This is typically included for APIs that return JSON
@@ -294,7 +294,7 @@ export function home() {
         
       };
 
-      fetch("http://localhost:8080/api/challan", {
+      fetch("https://iv.dakshabhi.com/api/challan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
