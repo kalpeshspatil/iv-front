@@ -58,7 +58,7 @@ export function home() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("https://iv.dakshabhi.com/api/products", {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: "GET", // Method is GET by default, so it's optional here
         headers: {
           "Content-Type": "application/json", // This is typically included for APIs that return JSON
@@ -84,7 +84,7 @@ export function home() {
   const fetchPfCustomersList = async () => {
     try {
       const response = await fetch(
-        "https://iv.dakshabhi.com/api/pf/customers",
+        `${API_BASE_URL}/api/pf/customers`,
         {
           method: "GET", // Method is GET by default, so it's optional here
           headers: {
@@ -107,7 +107,7 @@ export function home() {
   const fetchTpCustomersList = async () => {
     try {
       const response = await fetch(
-        "https://iv.dakshabhi.com/api/tp/customers",
+        `${API_BASE_URL}/api/tp/customers`,
         {
           method: "GET", // Method is GET by default, so it's optional here
           headers: {
@@ -271,7 +271,7 @@ export function home() {
         vehicleNumber: purchaseForm.pVehicle,
       };
 
-      fetch("https://iv.dakshabhi.com/api/challan", {
+      fetch(`${API_BASE_URL}/api/challan`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -32,7 +32,7 @@ export function HomePageSummary() {
   const fetchHomePageStat = async () => {
     try {
       const response = await fetch(
-        "https://iv.dakshabhi.com/api/challanToParties/homePageStat"
+        `${API_BASE_URL}/api/challanToParties/homePageStat`
       );
       if (!response.ok) throw new Error("Network response was not ok");
   

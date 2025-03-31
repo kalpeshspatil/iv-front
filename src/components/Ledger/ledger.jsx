@@ -27,7 +27,7 @@ const Ledger = () => {
   // Fetch To Parties Data
   const fetchToParties = async () => {
     try {
-      const response = await fetch("http://localhost:1040/api/challanToParties", {
+      const response = await fetch(`${API_BASE_URL}/api/challanToParties`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const handleFullyReceived = async (party) => {
     };
   
     try {
-      const response = await fetch("http://localhost:1040/api/tp/payments/paid", {
+      const response = await fetch(`${API_BASE_URL}/api/tp/payments/paid`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +99,7 @@ const handleFullyReceived = async (party) => {
     };
   
     try {
-      const response = await fetch("http://localhost:1040/api/tp/payments/paid", {
+      const response = await fetch(`${API_BASE_URL}/api/tp/payments/paid`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,7 +148,7 @@ const handleFullyReceived = async (party) => {
 
   return (
     <div className="ledger-container">
-      <button className="back-btn" onClick={() => navigate("/")}>
+      <button className="back-btn" onClick={() => navigate("/home")}>
         Back to Home
       </button>
      {/* Headline Section */}

@@ -9,6 +9,8 @@ import cancelledImg from "../../asset/cancelled.png";
 import pdfExportImg from "../../asset/pdf.png";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { API_BASE_URL } from "../../constants.js";  
+
 
 const Dispatch = () => {
   const [challans, setChallans] = useState([]);
@@ -48,7 +50,7 @@ const Dispatch = () => {
 
   const fetchChallanData = async () => {
     try {
-      const response = await fetch("https://iv.dakshabhi.com/api/challan", {
+      const response = await fetch(`${API_BASE_URL}/api/challan`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +78,7 @@ const Dispatch = () => {
     try {
       // Step 1: Update single toParty status via API
       const response = await fetch(
-        "https://iv.dakshabhi.com/api/challanToParties/updateStatus",
+        `${API_BASE_URL}/api/challanToParties/updateStatus`,
         {
           method: "PUT",
           headers: {
@@ -145,7 +147,7 @@ const Dispatch = () => {
         status = "PENDING";
       }
       const response = await fetch(
-        "https://iv.dakshabhi.com/api/challan/updateStatus",
+        `${API_BASE_URL}/api/challan/updateStatus`,
         {
           method: "PUT",
           headers: {
@@ -314,7 +316,7 @@ const Dispatch = () => {
 
   return (
     <div className="container">
-      <button className="back-btn" onClick={() => navigate("/")}>
+      <button className="back-btn" onClick={() => navigate("/home")}>
         Back to Home
       </button>
 
