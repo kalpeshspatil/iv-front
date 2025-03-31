@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "../HomePage/home.css";
 import "react-toastify/dist/ReactToastify.css";
 import "./HomePageSummary.css";
+import { API_BASE_URL } from "../../constants.js";  
+
 
 export function HomePageSummary() {
  

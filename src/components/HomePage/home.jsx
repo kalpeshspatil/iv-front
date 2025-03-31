@@ -5,6 +5,8 @@ import "./home.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HomePageSummary from "../HomePageSummary/HomePageSummary.jsx";
+import { API_BASE_URL } from "../../constants.js";  
+
 
 export function home() {
   const [modalType, setModalType] = useState(null);
@@ -423,7 +425,7 @@ export function home() {
                             onChange={handleProductChange}
                             options={products.map((product) => ({
                               value: product.productId,
-                              label: product.productName,
+                              label: product.productBrand+" "+product.productName,
                             }))}
                             required
                             placeholder="Select a Product"
