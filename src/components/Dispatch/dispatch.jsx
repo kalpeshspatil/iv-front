@@ -24,8 +24,6 @@ const Dispatch = () => {
     fetchChallanData();
   }, []);
 
-  
-
   const toggleDropdown = (partyId) => {
     setOpenDropdownId(openDropdownId === partyId ? null : partyId); // Toggle the dropdown for the clicked party
   };
@@ -70,13 +68,11 @@ const Dispatch = () => {
     }
   };
 
-
   // API call to mark Challan as Completed
-
 
   const handleStatusChange = async (partyId, status, challanId) => {
     console.log(`Changing status of party ID ${partyId} to ${status}`);
-  
+
     try {
       // Step 1: Update single toParty status via API
       const response = await fetch(
@@ -92,14 +88,14 @@ const Dispatch = () => {
           }),
         }
       );
-  
+
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-  
+
       const data = await response.json();
       console.log("Status updated successfully", data);
-  
+
       // Step 2: Update local state optimistically for the single party
       setChallans((prevChallans) => {
         return prevChallans.map((challan) => {
@@ -107,280 +103,280 @@ const Dispatch = () => {
             const updatedParties = challan.challanToParties.map((party) =>
               party.pkId === partyId ? { ...party, orderStatus: status } : party
             );
-  
+
             // Step 3: Check if all parties are now "DELIVERED"
             const allDelivered = updatedParties.every(
               (party) => party.orderStatus === "DELIVERED"
             );
-  
-           // Step 4: Check if at least ONE is NOT delivered (CANCELLED/PENDING)
-          const anyNotDelivered = updatedParties.some(
-            (party) => party.orderStatus !== "DELIVERED"
-          );
 
-          // If ALL are delivered, update challan to COMPLETED
-          if (allDelivered) {
-            updateChallanStatus(challanId, status);
-          } 
-          // If any is PENDING or CANCELLED, update challan to IN PROGRESS
-          else if (anyNotDelivered) {
-            updateChallanStatus(challanId, status);
-          }
-  
-            return { ...challan, challanToParties: updatedParties,
+            // Step 4: Check if at least ONE is NOT delivered (CANCELLED/PENDING)
+            const anyNotDelivered = updatedParties.some(
+              (party) => party.orderStatus !== "DELIVERED"
+            );
+
+            // If ALL are delivered, update challan to COMPLETED
+            if (allDelivered) {
+              updateChallanStatus(challanId, status);
+            }
+            // If any is PENDING or CANCELLED, update challan to IN PROGRESS
+            else if (anyNotDelivered) {
+              updateChallanStatus(challanId, status);
+            }
+
+            return {
+              ...challan,
+              challanToParties: updatedParties,
               challanStatus: allDelivered ? "DELIVERED" : "PENDING", // ✅ Update challan status in state
-             };
+            };
           }
           return challan;
         });
       });
-  
+
       setOpenDropdownId(null); // Close the dropdown after selection
     } catch (error) {
       setError(error.message);
     }
   };
-  
-
 
   const updateChallanStatus = async (challanId, status) => {
-  try {
-    if(status != "DELIVERED"){
-      status = "PENDING"
+    try {
+      if (status != "DELIVERED") {
+        status = "PENDING";
+      }
+      const response = await fetch(
+        "https://iv.dakshabhi.com/api/challan/updateStatus",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            challanId: challanId,
+            status: status,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update challan status");
+      }
+
+      const data = await response.json();
+      console.log(`Challan ${challanId} marked as DELIVERED`, data);
+
+      // Update state to reflect the new status
+      setChallans((prevChallans) =>
+        prevChallans.map((challan) =>
+          challan.challanId === challanId
+            ? {
+                ...challan,
+                status: status,
+                orderDeliveryDate: data.orderDeliveryDate,
+              }
+            : challan
+        )
+      );
+    } catch (error) {
+      console.error("Error updating challan status:", error);
     }
-    const response = await fetch("https://iv.dakshabhi.com/api/challan/updateStatus", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        challanId: challanId,
-        status: status
-      }),
+  };
+
+  const getChallanStatusIcon = (challan) => {
+    return challan.challanStatus === "DELIVERED" ? completedImg : inProgressImg;
+  };
+
+  // Filter logic
+
+  const exportPDF = () => {
+    const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(18);
+    doc.text("Challan Report", 14, 15);
+
+    // Define table columns
+    const columns = [
+      "ID",
+      "Vehicle No",
+      "Order Date",
+      "Product",
+      "Purchase From",
+      "Delivery Date",
+      "To Party",
+      "To Party Qty",
+      "To Party Rate",
+      "Status",
+    ];
+
+    // Prepare data for the table
+    let rows = [];
+
+    filteredChallans.forEach((challan) => {
+      if (challan.challanToParties.length > 0) {
+        challan.challanToParties.forEach((party, index) => {
+          rows.push([
+            index === 0 ? challan.challanId : "", // Show challan ID only once
+            index === 0 ? challan.vehicleNumber : "",
+            index === 0
+              ? new Date(challan.orderPlacedDate).toLocaleDateString("en-CA")
+              : "",
+            index === 0 ? challan.product.productName : "",
+            index === 0 ? challan.purchaseFrom.pfCustomerName : "",
+            index === 0
+              ? challan.orderDeliveryDate
+                ? challan.orderDeliveryDate.substring(0, 10)
+                : "N/A"
+              : "",
+            party.selectedToParty.customerName, // To Party Name
+            party.challanToPartiesQty, // To Party Quantity
+            party.challanToPartiesRate, // To Party Rate
+            party.orderStatus, // Status
+          ]);
+        });
+      } else {
+        // If no To Parties, add a single row for the Challan
+        rows.push([
+          challan.challanId,
+          challan.vehicleNumber,
+          new Date(challan.orderPlacedDate).toLocaleDateString("en-CA"),
+          challan.product.productName,
+          challan.purchaseFrom.pfCustomerName,
+          challan.orderDeliveryDate
+            ? challan.orderDeliveryDate.substring(0, 10)
+            : "N/A",
+          "N/A", // No To Party
+          "N/A",
+          "N/A",
+          challan.status || "IN PROGRESS",
+        ]);
+      }
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to update challan status");
-    }
+    // Auto-table generation
+    doc.autoTable({
+      startY: 25, // Position after the title
+      head: [columns],
+      body: rows,
+      styles: { fontSize: 10 },
+      columnStyles: {
+        0: { cellWidth: 20 }, // Challan ID
+        1: { cellWidth: 25 }, // Vehicle No
+        2: { cellWidth: 25 }, // Order Date
+        3: { cellWidth: 30 }, // Product
+        4: { cellWidth: 30 }, // Purchase From
+        5: { cellWidth: 25 }, // Delivery Date
+        6: { cellWidth: 30 }, // To Party Name
+        7: { cellWidth: 15 }, // To Party Quantity
+        8: { cellWidth: 15 }, // To Party Rate
+        9: { cellWidth: 20 }, // Status
+      },
+    });
 
-    const data = await response.json();
-    console.log(`Challan ${challanId} marked as DELIVERED`, data);
+    // Save the PDF
+    doc.save("Challan_Report.pdf");
+  };
 
-    // Update state to reflect the new status
-    setChallans((prevChallans) =>
-      prevChallans.map((challan) =>
-        challan.challanId === challanId ? { ...challan, status: status ,orderDeliveryDate: data.orderDeliveryDate} : challan
-      )
-    );
-  } catch (error) {
-    console.error("Error updating challan status:", error);
-  }
-};
+  // Filter logic with date range
+  const filteredChallans = challans
+    .filter((challan) => {
+      const toParties = challan.challanToParties || [];
+      const orderDate = new Date(challan.orderPlacedDate);
 
-const getChallanStatusIcon = (challan) => {
-  return challan.challanStatus === "DELIVERED" ? completedImg : inProgressImg;
-};
-
-
-    // Filter logic
-   
-    const exportPDF = () => {
-      const doc = new jsPDF();
-    
-      // Title
-      doc.setFontSize(18);
-      doc.text("Challan Report", 14, 15);
-    
-      // Define table columns
-      const columns = [
-        "ID",
-        "Vehicle No",
-        "Order Date",
-        "Product",
-        "Purchase From",
-        "Delivery Date",
-        "To Party",
-        "To Party Qty",
-        "To Party Rate",
-        "Status",
-      ];
-    
-      // Prepare data for the table
-      let rows = [];
-    
-      filteredChallans.forEach((challan) => {
-        if (challan.challanToParties.length > 0) {
-          challan.challanToParties.forEach((party, index) => {
-            rows.push([
-              index === 0 ? challan.challanId : "", // Show challan ID only once
-              index === 0 ? challan.vehicleNumber : "",
-              index === 0 ? new Date(challan.orderPlacedDate).toLocaleDateString("en-CA") : "",
-              index === 0 ? challan.product.productName : "",
-              index === 0 ? challan.purchaseFrom.pfCustomerName : "",
-              index === 0
-                ? challan.orderDeliveryDate
-                  ? challan.orderDeliveryDate.substring(0, 10)
-                  : "N/A"
-                : "",
-              party.selectedToParty.customerName, // To Party Name
-              party.challanToPartiesQty, // To Party Quantity
-              party.challanToPartiesRate, // To Party Rate
-              party.orderStatus, // Status
-            ]);
-          });
-        } else {
-          // If no To Parties, add a single row for the Challan
-          rows.push([
-            challan.challanId,
-            challan.vehicleNumber,
-            new Date(challan.orderPlacedDate).toLocaleDateString("en-CA"),
-            challan.product.productName,
-            challan.purchaseFrom.pfCustomerName,
-            challan.orderDeliveryDate ? challan.orderDeliveryDate.substring(0, 10) : "N/A",
-            "N/A", // No To Party
-            "N/A",
-            "N/A",
-            challan.status || "IN PROGRESS",
-          ]);
-        }
-      });
-    
-      // Auto-table generation
-      doc.autoTable({
-        startY: 25, // Position after the title
-        head: [columns],
-        body: rows,
-        styles: { fontSize: 10 },
-        columnStyles: {
-          0: { cellWidth: 20 }, // Challan ID
-          1: { cellWidth: 25 }, // Vehicle No
-          2: { cellWidth: 25 }, // Order Date
-          3: { cellWidth: 30 }, // Product
-          4: { cellWidth: 30 }, // Purchase From
-          5: { cellWidth: 25 }, // Delivery Date
-          6: { cellWidth: 30 }, // To Party Name
-          7: { cellWidth: 15 }, // To Party Quantity
-          8: { cellWidth: 15 }, // To Party Rate
-          9: { cellWidth: 20 }, // Status
-        },
-      });
-    
-      // Save the PDF
-      doc.save("Challan_Report.pdf");
-    };
-    
-   
-    // Filter logic with date range
-  const filteredChallans = challans.filter((challan) => {
-    const toParties = challan.challanToParties || [];
-    const orderDate = new Date(challan.orderPlacedDate);
-    
-
-    // Check status filter
-    if (filterStatus === "PENDING") {
-      return toParties.some((party) => party.orderStatus === "PENDING");
-    }
-    if (filterStatus === "DELIVERED") {
-      return (
-        toParties.length > 0 &&
-        toParties.every((party) => party.orderStatus === "DELIVERED")
-      );
-    } return true;
-  }).filter((challan) => {
-
-    // Check date range filter
-    if (startDate && new Date(challan.orderPlacedDate) < new Date(startDate)) {
-      return false;
-    }
-    if (endDate && new Date(challan.orderPlacedDate) > new Date(endDate)) {
-      return false;
-    }
-    return true; // Show all if no filter criteria is matched
-  });
-  
+      // Check status filter
+      if (filterStatus === "PENDING") {
+        return toParties.some((party) => party.orderStatus === "PENDING");
+      }
+      if (filterStatus === "DELIVERED") {
+        return (
+          toParties.length > 0 &&
+          toParties.every((party) => party.orderStatus === "DELIVERED")
+        );
+      }
+      return true;
+    })
+    .filter((challan) => {
+      // Check date range filter
+      if (
+        startDate &&
+        new Date(challan.orderPlacedDate) < new Date(startDate)
+      ) {
+        return false;
+      }
+      if (endDate && new Date(challan.orderPlacedDate) > new Date(endDate)) {
+        return false;
+      }
+      return true; // Show all if no filter criteria is matched
+    });
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="container">
-
-<button className="back-btn" onClick={() => navigate("/")}>
+      <button className="back-btn" onClick={() => navigate("/")}>
         Back to Home
       </button>
 
       <div className="headline-container">
-    <h2>Challans</h2>
-  </div>
+        <h2>Challans</h2>
+      </div>
 
+      {/* Filters Section */}
+      <div className="container mt-4 mb-4">
+        <div className="row g-3 align-items-end">
+          {/* Payment Status Filter */}
+          <div className="col-sm-2">
+            <label htmlFor="filterStatus" className="form-label">
+              Payment Status:
+            </label>
+            <select
+              id="filterStatus"
+              className="form-select"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="ALL">All</option>
+              <option value="PENDING">Pending</option>
+              <option value="DELIVERED">Delivered</option>
+            </select>
+          </div>
 
+          {/* Start Date Filter */}
+          <div className="col-sm-2">
+            <label htmlFor="startDate" className="form-label">
+              Start Date:
+            </label>
+            <input
+              type="date"
+              id="startDate"
+              className="form-control"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
 
-  {/* Filters Section */}
-  <div className="container mt-4 mb-4">
-  <div className="row g-3 align-items-end">
-    {/* Payment Status Filter */}
-    <div className="col-sm-2">
-      <label htmlFor="filterStatus" className="form-label">
-        Payment Status:
-      </label>
-      <select
-        id="filterStatus"
-        className="form-select"
-        value={filterStatus}
-        onChange={(e) => setFilterStatus(e.target.value)}
-      >
-        <option value="ALL">All</option>
-        <option value="PENDING">Pending</option>
-        <option value="DELIVERED">Delivered</option>
-      </select>
-    </div>
+          {/* End Date Filter */}
+          <div className="col-sm-2">
+            <label htmlFor="endDate" className="form-label">
+              End Date:
+            </label>
+            <input
+              type="date"
+              id="endDate"
+              className="form-control"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
 
-    {/* Start Date Filter */}
-    <div className="col-sm-2">
-      <label htmlFor="startDate" className="form-label">
-        Start Date:
-      </label>
-      <input
-        type="date"
-        id="startDate"
-        className="form-control"
-        value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
-      />
-    </div>
-
-    {/* End Date Filter */}
-    <div className="col-sm-2">
-      <label htmlFor="endDate" className="form-label">
-        End Date:
-      </label>
-      <input
-        type="date"
-        id="endDate"
-        className="form-control"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-      />
-    </div>
-
-<div className="col-sm-1">
-<button className="pdf-export-btn" onClick={exportPDF}><img
-                            src={pdfExportImg}
-                            alt="pdfExport"
-                            className="pdf-icon"
-                          /></button>
-
-</div>
-
-  </div>
-  </div>
-
-
-
-
-
-
-      
+          <div className="col-sm-1">
+            <button className="pdf-export-btn" onClick={exportPDF}>
+              <img src={pdfExportImg} alt="pdfExport" className="pdf-icon" />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {filteredChallans.map((challan) => {
         const isCompleted = matchPurchaseAndToQty(challan); // Calculate status for each challan
@@ -397,7 +393,13 @@ const getChallanStatusIcon = (challan) => {
                   Veh No:<strong> {challan.vehicleNumber}</strong>
                 </p>
                 <p>
-                  Order Date:<strong> {new Date(challan.orderPlacedDate).toLocaleDateString("en-CA")}</strong>
+                  Order Date:
+                  <strong>
+                    {" "}
+                    {new Date(challan.orderPlacedDate).toLocaleDateString(
+                      "en-CA"
+                    )}
+                  </strong>
                 </p>
               </div>
 
@@ -411,16 +413,22 @@ const getChallanStatusIcon = (challan) => {
                   Product:<strong> {challan.product.productName}</strong>
                 </p>
                 <p>
-                  Delivery Date:<strong> {challan.orderDeliveryDate ? challan.orderDeliveryDate.substring(0, 10) : "N/A"}</strong>
+                  Delivery Date:
+                  <strong>
+                    {" "}
+                    {challan.orderDeliveryDate
+                      ? challan.orderDeliveryDate.substring(0, 10)
+                      : "N/A"}
+                  </strong>
                 </p>
               </div>
 
               {/* Status Icon at Right-Top */}
               <div className="challan-status-icon">
                 <img
-                 src={getChallanStatusIcon(challan)}
-                 alt="Challan Status"
-                 className="challan-status-icon"
+                  src={getChallanStatusIcon(challan)}
+                  alt="Challan Status"
+                  className="challan-status-icon"
                 />
               </div>
             </div>
@@ -479,7 +487,11 @@ const getChallanStatusIcon = (challan) => {
                               <button
                                 className="dropdown-item green"
                                 onClick={() =>
-                                  handleStatusChange(party.pkId, "DELIVERED",challan.challanId)
+                                  handleStatusChange(
+                                    party.pkId,
+                                    "DELIVERED",
+                                    challan.challanId
+                                  )
                                 }
                               >
                                 Delivered
@@ -487,7 +499,11 @@ const getChallanStatusIcon = (challan) => {
                               <button
                                 className="dropdown-item red"
                                 onClick={() =>
-                                  handleStatusChange(party.pkId, "CANCELLED",challan.challanId)
+                                  handleStatusChange(
+                                    party.pkId,
+                                    "CANCELLED",
+                                    challan.challanId
+                                  )
                                 }
                               >
                                 Cancelled

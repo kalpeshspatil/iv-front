@@ -27,7 +27,7 @@ const Ledger = () => {
   // Fetch To Parties Data
   const fetchToParties = async () => {
     try {
-      const response = await fetch("https://iv.dakshabhi.com/api/challanToParties", {
+      const response = await fetch("http://localhost:1040/api/challanToParties", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const handleFullyReceived = async (party) => {
     };
   
     try {
-      const response = await fetch("https://iv.dakshabhi.com/api/tp/payments/paid", {
+      const response = await fetch("http://localhost:1040/api/tp/payments/paid", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +99,7 @@ const handleFullyReceived = async (party) => {
     };
   
     try {
-      const response = await fetch("https://iv.dakshabhi.com/api/tp/payments/paid", {
+      const response = await fetch("http://localhost:1040/api/tp/payments/paid", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
