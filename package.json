@@ -6,11 +6,14 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@mobiscroll/react-lite": "^4.10.9",
     "@mui/material": "6.4.0",
     "bootstrap": "^5.3.3",
+    "date-fns": "^4.1.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "react": "18.0.0",
+    "react-datepicker": "^8.2.1",
     "react-dom": "18.0.0",
     "react-router-dom": "^7.1.4",
     "react-scripts": "^5.0.1",

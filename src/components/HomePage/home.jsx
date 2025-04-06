@@ -5,8 +5,9 @@ import "./home.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HomePageSummary from "../HomePageSummary/HomePageSummary.jsx";
-import { API_BASE_URL } from "../../constants.js";  
-
+import { API_BASE_URL } from "../../constants.js";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export function home() {
   const [modalType, setModalType] = useState(null);
@@ -16,7 +17,7 @@ export function home() {
   const [product, setProduct] = useState("");
   const [purchaseFrom, setPFrom] = useState("");
   const [pRate, setPRate] = useState("");
-  const [pQty, setPQty] = useState("");
+  const [pQty, setPQty] = useState("400");
   const [pVehicle, setPVehicle] = useState("");
   const [toParty, setToParty] = useState(null);
   const [challanToPartiesRate, setChallanToPartiesRate] = useState("");
@@ -26,7 +27,7 @@ export function home() {
     product: "",
     purchaseFrom: "",
     pRate: "",
-    pQty: "",
+    pQty: 0,
     pVehicle: "",
   }); // State for Purchase From Form
   const [toPartyEntries, setToPartyEntries] = useState([]); // List of "To Party" entries
@@ -36,7 +37,7 @@ export function home() {
       customerName: "",
     },
     challanToPartiesRate: "",
-    challanToPartiesQty: "",
+    challanToPartiesQty: 0,
   }); // State for the current "To Party" entry
   // State for handling product selection and form fields
   const [products, setProducts] = useState([]); // List of products
@@ -56,6 +57,14 @@ export function home() {
     noOfDuePayments: null,
     totalSale: null,
   });
+  const [challanDate, setChallanDate] = useState(new Date()); // default to today
+
+  //const [quantity, setQuantity] = useState("400"); // Default selected value
+
+  const handleQuantityChange = (event) => {
+    setPQty(event.target.value);
+  };
+
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
@@ -85,15 +94,12 @@ export function home() {
 
   const fetchPfCustomersList = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/pf/customers`,
-        {
-          method: "GET", // Method is GET by default, so it's optional here
-          headers: {
-            "Content-Type": "application/json", // This is typically included for APIs that return JSON
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/pf/customers`, {
+        method: "GET", // Method is GET by default, so it's optional here
+        headers: {
+          "Content-Type": "application/json", // This is typically included for APIs that return JSON
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -108,15 +114,12 @@ export function home() {
 
   const fetchTpCustomersList = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/tp/customers`,
-        {
-          method: "GET", // Method is GET by default, so it's optional here
-          headers: {
-            "Content-Type": "application/json", // This is typically included for APIs that return JSON
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/tp/customers`, {
+        method: "GET", // Method is GET by default, so it's optional here
+        headers: {
+          "Content-Type": "application/json", // This is typically included for APIs that return JSON
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -192,8 +195,8 @@ export function home() {
         ...currentToParty,
         [e.target.name]: e.target.value,
         selectedToParty: {
-          tpCustomerId: toParty.value,
-          customerName: toParty.label,
+          tpCustomerId: toParty?.value,
+          customerName: toParty?.label,
         },
       });
     }
@@ -410,7 +413,7 @@ export function home() {
                   </div>
                 </>
               )}
-
+              {/* Challan Form */}
               {/* Challan Form */}
               {modalType === "Challan" && (
                 <div className="modal">
@@ -420,12 +423,25 @@ export function home() {
                       <>
                         <h4>Purchase From</h4>
                         <div className="form-group">
+  <DatePicker
+    selected={challanDate}
+    onChange={(date) => setChallanDate(date)}
+    dateFormat="dd/MM/yyyy"
+    className="form-control"
+    id="challanDate"
+    name="challanDate"
+  />
+</div>
+                        <div className="form-group">
                           <Select
                             value={selectedProduct}
                             onChange={handleProductChange}
                             options={products.map((product) => ({
                               value: product.productId,
-                              label: product.productBrand+" "+product.productName,
+                              label:
+                                product.productBrand +
+                                " " +
+                                product.productName,
                             }))}
                             required
                             placeholder="Select a Product"
@@ -443,40 +459,77 @@ export function home() {
                             placeholder="Select a From Party"
                           />
                         </div>
-                        <div className="form-group">
-                          <input
-                            type="number"
-                            name="pRate"
-                            placeholder="Enter Rate"
-                            step="0.01"
-                            value={purchaseForm.pRate}
-                            onChange={handlePurchaseChange}
-                            required
-                            className="form-input"
-                          />
+
+                        <div className="row">
+                          <div className="segmented-container">
+                            <div className="col-lg-12 d-flex">
+                              <div className="col-lg-6 d-flex gap-1 px-1">
+                                {[240, 360, 400, 600].map((val) => (
+                                  <label
+                                    key={val}
+                                    className={`segment ${
+                                      Number(purchaseForm.pQty) === val
+                                        ? `selected`
+                                        : ""
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="pQty"
+                                      value={val}
+                                      checked={purchaseForm.pQty === val}
+                                      onChange={handlePurchaseChange}
+                                    />
+                                    {val}
+                                  </label>
+                                ))}
+                              </div>
+                              <div className="col-lg-6 ml-1">
+                                <input
+                                  type="number"
+                                  placeholder="Custom"
+                                  name="pQty"
+                                  value={purchaseForm.pQty}
+                                  onChange={handlePurchaseChange}
+                                  className="form-input"
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="form-group">
-                          <input
-                            type="number"
-                            name="pQty"
-                            placeholder="Enter Quantity"
-                            value={purchaseForm.pQty}
-                            onChange={handlePurchaseChange}
-                            required
-                            className="form-input"
-                          />
+
+                        <div className="row">
+                          <div className="col-lg-12 flex">
+                            <div className="col-lg-6 px-1">
+                              <div className="form-group">
+                                <input
+                                  type="number"
+                                  name="pRate"
+                                  placeholder="Enter Rate"
+                                  step="0.01"
+                                  value={purchaseForm.pRate}
+                                  onChange={handlePurchaseChange}
+                                  required
+                                  className="form-input"
+                                />
+                              </div>
+                            </div>
+                            <div className="col-lg-6 px-1">
+                              <div className="form-group">
+                                <input
+                                  type="text"
+                                  name="pVehicle"
+                                  placeholder="Enter Vehicle Number"
+                                  value={purchaseForm.pVehicle}
+                                  onChange={handlePurchaseChange}
+                                  required
+                                  className="form-input"
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="form-group">
-                          <input
-                            type="text"
-                            name="pVehicle"
-                            placeholder="Enter Vehicle Number"
-                            value={purchaseForm.pVehicle}
-                            onChange={handlePurchaseChange}
-                            required
-                            className="form-input"
-                          />
-                        </div>
+
                         <button
                           type="button"
                           onClick={() => setStep("toParty")}
@@ -520,23 +573,52 @@ export function home() {
                             className="form-input"
                           />
                         </div>
-                        <div className="form-group">
-                          <input
-                            type="number"
-                            name="challanToPartiesQty"
-                            placeholder="Enter Quantity"
-                            value={challanToPartiesQty}
-                            onChange={handleToPartyChange}
-                            className="form-input"
-                          />
+                      
+                        <div className="row">
+                          <div className="segmented-container">
+                            <div className="col-lg-12 d-flex">
+                              <div className="col-lg-6 d-flex gap-1 px-1">
+                                {[240, 360, 400, 600].map((val) => (
+                                  <label
+                                    key={val}
+                                    className={`segment ${
+                                      Number(challanToPartiesQty) === val
+                                        ? "selected"
+                                        : ""
+                                    }`}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="challanToPartiesQty"
+                                      value={val}
+                                      checked={purchaseForm.pQty === val}
+                                      onChange={handleToPartyChange}
+                                    />
+                                    {val}
+                                  </label>
+                                ))}
+                              </div>
+                              <div className="col-lg-6">
+                                <input
+                                  type="number"
+                                  placeholder="Custom"
+                                  name="challanToPartiesQty"
+                                  value={challanToPartiesQty}
+                                  onChange={handleToPartyChange}
+                                  className="form-input"
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
+
                         <div className="add-to-parties-container">
                           <button
                             type="button"
                             onClick={addToPartyEntry}
                             className="btn btn-add"
                           >
-                            Add To Party Entry
+                            Add +
                           </button>
                           {/* Display Purchase Quantity */}
                           <span className="purchase-qty-info">
@@ -551,16 +633,20 @@ export function home() {
                             </strong>
                           </span>
                         </div>
-                        <h5>Added To Party Entries</h5>
+                        <div className="to-paries-data-list">
+                        <hr className="hr-line mt-3"></hr>
+                        <h7 className="ml-1">To Party Entries</h7>
+                        <hr className="hr-line"></hr>
                         <ul>
                           {toPartyEntries.map((entry, index) => (
-                            <li key={index}>
+                            <li className="to-party-entry-item" key={index}>
                               {entry.selectedToParty.customerName},{" "}
                               {entry.challanToPartiesRate},{" "}
                               {entry.challanToPartiesQty}
                             </li>
                           ))}
                         </ul>
+                        </div>
                         <div className="form-actions">
                           <button
                             type="button"
