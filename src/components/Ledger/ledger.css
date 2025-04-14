@@ -183,6 +183,10 @@
   opacity: 0.8;
 }
 
+.ledger-detail-btn {
+  background-color: #007bff !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .filters-container {

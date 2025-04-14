@@ -408,3 +408,60 @@
   background-color: #292858;
   color:white;
 }
+
+.content-wrapper {
+  background: #f4f6f9;
+}
+
+.content-header {
+  padding: 10px 0.5rem;
+}
+
+.container-fluid {
+  width: 100%;
+  padding-right: 7.5px;
+  padding-left: 7.5px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.text-dark {
+  color: #343a40 !important;
+}
+
+.content-header h1 {
+  font-size: 1.3rem;
+}
+
+.content-wrapper > .content {
+  padding: 0 0.5rem;
+}
+
+.card {
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.125), 0 1px 3px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+}
+
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 0.75rem 1.25rem;
+  position: relative;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  float: left;
+    font-weight: 400;
+    margin: 0;
+}
+
+.inner-card-body {
+  padding: inherit;
+}
+
+.inner-table-inherit-margin {
+ margin: inherit;
+}

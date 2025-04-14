@@ -7,6 +7,7 @@ import Ledger from "./components/Ledger/ledger";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import PrivateRoute from "./PrivateRoute";
+import LedgerByToPartyCustomer from "./components/LedgerByToPartyCustomer/LedgerByToPartyCustomer";
 
 
 
@@ -20,7 +21,8 @@ const App = () => {
               <Home />
             </PrivateRoute>} />
         <Route path="/dispatch" element={<Dispatch />} /> {/* Dispatch Page */}
-        <Route path="/ledger" element={<Ledger />} /> {/* Dispatch Page */}
+        <Route path="/ledger" element={<Ledger />} /> 
+        <Route path="/ledger/:customerId" element={<LedgerByToPartyCustomer />} />
 
       </Routes>
     </Router>

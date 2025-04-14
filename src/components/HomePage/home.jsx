@@ -7,7 +7,10 @@ import "react-toastify/dist/ReactToastify.css";
 import HomePageSummary from "../HomePageSummary/HomePageSummary.jsx";
 import { API_BASE_URL } from "../../constants.js";
 import DatePicker from "react-datepicker";
+import { format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
+import { ImSwitch } from "react-icons/im";
+
 
 export function home() {
   const [modalType, setModalType] = useState(null);
@@ -261,7 +264,10 @@ export function home() {
         return; // Stop submission if the quantities do not match
       }
 
+      const formattedDate = format(challanDate, "yyyy-MM-dd");
+
       const finalData = {
+        orderPlacedDate: formattedDate,
         product: {
           productId: purchaseForm.product.value,
           productName: purchaseForm.product.label,
@@ -308,11 +314,14 @@ export function home() {
   // Handle product selection change
   const handleProductChange = (selectedOption) => {
     setSelectedProduct(selectedOption); // Set selected product in state
+    debugger
+    purchaseForm.pRate = selectedOption.product.productLandingPrice;
   };
 
   // Handle product selection change
   const handleFromPartyChange = (selectedOption) => {
-    setSelectedFromParty(selectedOption); // Store the whole object, not just value
+    setSelectedFromParty(selectedOption);
+    // Store the whole object, not just value
   };
 
   // Handle product selection change
@@ -332,7 +341,7 @@ export function home() {
 
   return (
     <div className="App">
-      <div className="row">
+      <div className="row menubar">
         <div className="col-sm-12">
           <div className="col-sm-6 offset-sm-3">
             <div className="button-container">
@@ -347,14 +356,32 @@ export function home() {
           <div className="col-sm-3">
             <div className="home-container">
               <button className="logout-btn" onClick={handleLogout}>
-                Logout
+              <ImSwitch />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <HomePageSummary> </HomePageSummary>
+      <div className="content-wrapper">
+        <div className="content-header">
+          <div className="container-fluid">
+            <div className="row mb-2">
+              <div className="col-sm-6">
+                <h1 className="m-0 text-dark">Dashboard </h1>
+              </div>
+              <div className="col-sm-6">
+                
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="content">
+          <div className="container-fluid">
+          <HomePageSummary> </HomePageSummary>
+          </div>
+        </div>
+      </div>
 
       {/* Modal */}
       {modalType && (
@@ -423,15 +450,15 @@ export function home() {
                       <>
                         <h4>Purchase From</h4>
                         <div className="form-group">
-  <DatePicker
-    selected={challanDate}
-    onChange={(date) => setChallanDate(date)}
-    dateFormat="dd/MM/yyyy"
-    className="form-control"
-    id="challanDate"
-    name="challanDate"
-  />
-</div>
+                          <DatePicker
+                            selected={challanDate}
+                            onChange={(date) => setChallanDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            className="form-control"
+                            id="challanDate"
+                            name="challanDate"
+                          />
+                        </div>
                         <div className="form-group">
                           <Select
                             value={selectedProduct}
@@ -442,6 +469,7 @@ export function home() {
                                 product.productBrand +
                                 " " +
                                 product.productName,
+                                product,
                             }))}
                             required
                             placeholder="Select a Product"
@@ -573,7 +601,7 @@ export function home() {
                             className="form-input"
                           />
                         </div>
-                      
+
                         <div className="row">
                           <div className="segmented-container">
                             <div className="col-lg-12 d-flex">
@@ -634,18 +662,18 @@ export function home() {
                           </span>
                         </div>
                         <div className="to-paries-data-list">
-                        <hr className="hr-line mt-3"></hr>
-                        <h7 className="ml-1">To Party Entries</h7>
-                        <hr className="hr-line"></hr>
-                        <ul>
-                          {toPartyEntries.map((entry, index) => (
-                            <li className="to-party-entry-item" key={index}>
-                              {entry.selectedToParty.customerName},{" "}
-                              {entry.challanToPartiesRate},{" "}
-                              {entry.challanToPartiesQty}
-                            </li>
-                          ))}
-                        </ul>
+                          <hr className="hr-line mt-3"></hr>
+                          <h7 className="ml-1">To Party Entries</h7>
+                          <hr className="hr-line"></hr>
+                          <ul>
+                            {toPartyEntries.map((entry, index) => (
+                              <li className="to-party-entry-item" key={index}>
+                                {entry.selectedToParty.customerName},{" "}
+                                {entry.challanToPartiesRate},{" "}
+                                {entry.challanToPartiesQty}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                         <div className="form-actions">
                           <button

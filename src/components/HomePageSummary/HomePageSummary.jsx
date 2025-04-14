@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import "../HomePage/home.css";
 import "react-toastify/dist/ReactToastify.css";
 import "./HomePageSummary.css";
-import { API_BASE_URL } from "../../constants.js";  
+import { API_BASE_URL } from "../../constants.js";
+import { FaChartPie } from "react-icons/fa";
+import { FaChartSimple } from "react-icons/fa6";
+import { IoIosPricetags } from "react-icons/io";
+import EditableTable  from "../EditableLandingPrices/EditableLandingPrice.jsx";
+
 
 
 export function HomePageSummary() {
- 
   const [homePageStats, setHomePageStats] = useState({
     a1Outstanding: null,
     accOutstanding: null,
@@ -22,10 +26,11 @@ export function HomePageSummary() {
     a3: null,
     a4: null,
     a5: null,
-    a6: null
+    a6: null,
   });
   const [ageWiseOutstandingData, setAgeWiseOutstandingData] = useState(null);
-
+  const [products, setProducts] = useState([]); // List of products
+  
 
   useEffect(() => {
     fetchHomePageStat();
@@ -37,20 +42,26 @@ export function HomePageSummary() {
         `${API_BASE_URL}/api/challanToParties/homePageStat`
       );
       if (!response.ok) throw new Error("Network response was not ok");
-  
+
       const data = await response.json();
-  
+
       setHomePageStats({
         a1Outstanding: data.a1Outstanding || 0,
         accOutstanding: data.accOutstanding || 0,
         shaktiOutstanding: data.shaktiOutstanding || 0,
-        totalOutstanding: data.a1Outstanding + data.accOutstanding + data.shaktiOutstanding,
+        totalOutstanding:
+          data.a1Outstanding + data.accOutstanding + data.shaktiOutstanding,
         totalSaleOfA1: data.totalSaleOfA1 ? data.totalSaleOfA1 / 20 : 0,
         totalSaleOfAcc: data.totalSaleOfAcc ? data.totalSaleOfAcc / 20 : 0,
-        totalSaleOfShakti: data.totalSaleOfShakti ? data.totalSaleOfShakti / 20 : 0,
+        totalSaleOfShakti: data.totalSaleOfShakti
+          ? data.totalSaleOfShakti / 20
+          : 0,
         noOfDuePayments: data.noOfDuePayments || 0,
-        totalSale: (data.totalSaleOfA1 / 20) + (data.totalSaleOfAcc / 20) + (data.totalSaleOfShakti / 20),
-  
+        totalSale:
+          data.totalSaleOfA1 / 20 +
+          data.totalSaleOfAcc / 20 +
+          data.totalSaleOfShakti / 20,
+
         a1: data.outstandingGroupByDaysDTO?.a1 || "0.00",
         a2: data.outstandingGroupByDaysDTO?.a2 || "0.00",
         a3: data.outstandingGroupByDaysDTO?.a3 || "0.00",
@@ -58,15 +69,16 @@ export function HomePageSummary() {
         a5: data.outstandingGroupByDaysDTO?.a5 || "0.00",
         a6: data.outstandingGroupByDaysDTO?.a6 || "0.00",
       });
-  
+
       setAgeWiseOutstandingData(data.outstandingGroupByDaysDTO || {});
     } catch (error) {
       console.error("Error fetching homepage stats:", error);
     }
   };
 
+  
+
   return (
-    <div className="App">
       <div className="row">
         <div className="col-sm-12">
           <div className="col-lg-12">
@@ -74,7 +86,9 @@ export function HomePageSummary() {
               <div className="card-header">
                 <div className="d-flex justify-content-between">
                   <h3 className="card-title">
-                    <i className="fas fa-chart-pie mr-1"></i> Ledger Summary
+                  <FaChartPie />
+
+                    <i className="fas fa-chart-pie mr-1"></i> Outstanding Summary 
                   </h3>
                 </div>
               </div>
@@ -89,7 +103,7 @@ export function HomePageSummary() {
                       <div className="info-box-content">
                         <span className="info-box-text">
                           <h5>
-                            <b>A1 Outstanding</b>
+                            <b>Birla A1</b>
                           </h5>
                         </span>
                         <span className="info-box-number">
@@ -106,7 +120,7 @@ export function HomePageSummary() {
                       <div className="info-box-content">
                         <span className="info-box-text">
                           <h5>
-                            <b>Acc Outstanding</b>
+                            <b>ACC</b>
                           </h5>{" "}
                         </span>
                         <span className="info-box-number">
@@ -116,7 +130,7 @@ export function HomePageSummary() {
                     </div>
                   </div>
                   <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-warning elevation-1">
+                    <div className="info-box mb-3 bg-info elevation-1">
                       <span className="info-box-icon ">
                         <i className="fas fa-clock"></i>
                       </span>
@@ -124,7 +138,7 @@ export function HomePageSummary() {
                       <div className="info-box-content">
                         <span className="info-box-text">
                           <h5>
-                            <b>Shakti Outstanding </b>
+                            <b>Shakti</b>
                           </h5>
                         </span>
                         <span className="info-box-number">
@@ -152,6 +166,63 @@ export function HomePageSummary() {
                     </div>
                   </div>
                 </div>
+                <div className="col-lg-12">
+            <div className="card">
+              <div className="card-header">
+                <div className="d-flex justify-content-between">
+                  <h3 className="card-title">
+                    <i className="fas fa-chart-pie mr-1"></i> Age Wise
+                    Outstanding
+                  </h3>
+                </div>
+              </div>
+              <div className="card-body inner-card-body">
+                <table
+                  className="table inner-table-inherit-margin"
+                  role="grid"
+                >
+                  <thead>
+                    <tr role="row">
+                      <th className="text-right" rowSpan="1" colSpan="1">
+                        0 to 4 Days
+                      </th>
+                      <th className="text-right" rowSpan="1" colSpan="1">
+                        5 to 9 Days
+                      </th>
+                      <th className="text-right" rowSpan="1" colSpan="1">
+                        10 to 14 Days
+                      </th>
+                      <th className="text-right" rowSpan="1" colSpan="1">
+                        15 to 20 Days
+                      </th>
+                      <th className="text-right" rowSpan="1" colSpan="1">
+                        21 to 30 Days
+                      </th>
+                      <th className="text-right" rowSpan="1" colSpan="1">
+                        30+ Days
+                      </th>
+                      <th className="text-right" rowSpan="1" colSpan="1">
+                        Total
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr role="row" className="odd">
+                      <td className="text-right">{homePageStats?.a1 || 0}</td>
+                      <td className="text-right">{homePageStats?.a2 || 0}</td>
+                      <td className="text-right">{homePageStats?.a3 || 0}</td>
+                      <td className="text-right">{homePageStats?.a4 || 0}</td>
+                      <td className="text-right">{homePageStats?.a5 || 0}</td>
+                      <td className="text-right">{homePageStats?.a6 || 0}</td>
+                      <td className="text-right">
+                        {homePageStats.totalOutstanding}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
               </div>
             </div>
           </div>
@@ -161,7 +232,9 @@ export function HomePageSummary() {
               <div className="card-header">
                 <div className="d-flex justify-content-between">
                   <h3 className="card-title">
-                    <i className="fas fa-chart-pie mr-1"></i> Sales (MT)
+                  <FaChartSimple />
+
+                    <i className="fas fa-chart-pie mr-1"></i> Sales Summary(MT)
                   </h3>
                 </div>
               </div>
@@ -204,7 +277,7 @@ export function HomePageSummary() {
                     </div>
                   </div>
                   <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-warning elevation-1">
+                    <div className="info-box mb-3 bg-info elevation-1">
                       <span className="info-box-icon ">
                         <i className="fas fa-clock"></i>
                       </span>
@@ -244,47 +317,34 @@ export function HomePageSummary() {
               </div>
             </div>
           </div>
+
+         
+
           <div className="col-lg-12">
-          <div className="card">
-          <div className="card-header">
-          <div className="d-flex justify-content-between">
+          <div className="col-lg-6">
+
+            <div className="card">
+              <div className="card-header">
+                <div className="d-flex justify-content-between">
                   <h3 className="card-title">
-                    <i className="fas fa-chart-pie mr-1"></i> Age Wise Outstanding
+                  <IoIosPricetags />
+
+                    <i className="fas fa-chart-pie mr-1"></i> Current Landing Rates
                   </h3>
                 </div>
-            
+              </div>
+              <div className="card-body">
+              <EditableTable></EditableTable>
+              </div>
             </div>
-            <div className="card-body">
-            <table className="table table-bordered table-hover dataTable no-footer dtr-inline dtr-row" role="grid">
-              <thead><tr role="row">
-                <th className="text-right" rowSpan="1" colSpan="1">0 to 4 Days</th
-                ><th className="text-right" rowSpan="1" colSpan="1">5 to 9 Days</th>
-                <th className="text-right" rowSpan="1" colSpan="1">10 to 14 Days</th>
-                <th className="text-right" rowSpan="1" colSpan="1">15 to 20 Days</th>
-                <th className="text-right" rowSpan="1" colSpan="1">21 to 30 Days</th>
-                <th className="text-right" rowSpan="1" colSpan="1">30+ Days</th>
-               <th className="text-right" rowSpan="1" colSpan="1">OutStanding</th>
-               </tr></thead><tbody><tr role="row" className="odd">
-    <td className="text-right">{homePageStats?.a1 || 0}</td>
-    <td className="text-right">{homePageStats?.a2 || 0}</td>
-    <td className="text-right">{homePageStats?.a3 || 0}</td>
-    <td className="text-right">{homePageStats?.a4 || 0}</td>
-    <td className="text-right">{homePageStats?.a5 || 0}</td>
-    <td className="text-right">{homePageStats?.a6 || 0}</td>
-    <td className="text-right">{homePageStats.totalOutstanding}</td>
-  </tr>
-                </tbody>
-                </table>
+            </div>
+            <div className="col-lg-6">
+              
             </div>
 
-
-            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }
 export default HomePageSummary;
-
-

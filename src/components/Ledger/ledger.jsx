@@ -4,10 +4,13 @@ import inProgressImg from "../../asset/inprogress.png";
 import completedImg from "../../asset/completed.png";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../constants.js";  
+import { format } from "date-fns";
+
 
 
 const Ledger = () => {
   const [toParties, setToParties] = useState([]);
+  const [toPartiesLedger, setToPartiesLedger] = useState([]);
   const [filterStatus, setFilterStatus] = useState("PENDING"); // Filter: ALL, PENDING, RECEIVED
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,13 +25,19 @@ const Ledger = () => {
 
 
   useEffect(() => {
-    fetchToParties();
+    fetchToPartiesLedger();
   }, []);
 
+  const handleViewDetails = (party) => {
+    navigate(`/ledger/${party.tpCustomerId}`, {
+      state: { customerName: party.customerName }
+    });
+  };
+
   // Fetch To Parties Data
-  const fetchToParties = async () => {
+  const fetchToPartiesLedger = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/challanToParties`, {
+      const response = await fetch(`${API_BASE_URL}/api/challanToParties/ledger`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +49,7 @@ const Ledger = () => {
       }
 
       const data = await response.json();
-      setToParties(data);
+      setToPartiesLedger(data);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -54,9 +63,11 @@ const handleFullyReceived = async (party) => {
   
    // const fullAmount = party.challanToPartiesQty * party.challanToPartiesRate; // Total amount
     const paymentData = {
-      paymentDate: new Date(), // Today's date
-      challanToParties: party,
-      payment: party.outstandingPayment,
+      paymentDate: new Date().toISOString().split("T")[0], // 'yyyy-MM-dd', // Today's date
+      challanToParties :{
+       pkId: party.tpCustomerId
+      },
+      payment: party.balance
     };
   
     try {
@@ -93,8 +104,10 @@ const handleFullyReceived = async (party) => {
       return;
     }
   
+    const formattedDate = format(selectedDate, "yyyy-MM-dd");
+    
     const paymentData = {
-      paymentDate: selectedDate,
+      paymentDate: formattedDate,
       challanToParties: { pkId: selectedParty.pkId },
       payment: receivedAmount,
     };
@@ -121,28 +134,28 @@ const handleFullyReceived = async (party) => {
     }
   };
   
-  const calculatePendingDays = (deliveryDate) => {
-    const today = new Date();
-    const delivery = new Date(deliveryDate);
-    const diffTime = Math.abs(today - delivery);
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert ms to days
-  };
+  // const calculatePendingDays = (deliveryDate) => {
+  //   const today = new Date();
+  //   const delivery = new Date(deliveryDate);
+  //   const diffTime = Math.abs(today.getTime() - delivery.getTime());
+  //   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert ms to days
+  // };
 
   // Filter logic
-  const filteredToParties = toParties.filter((party) => {
-    if (filterStatus === "PENDING") return party.paymentStatus === "PENDING";
-    if (filterStatus === "RECEIVED") return party.paymentStatus === "RECEIVED";
-    return true; // Show all if filter is "ALL"
-  }).filter((party) => {
-    // Filter by date range
-    if (startDate && new Date(party.deliveryDate) < new Date(startDate)) {
-      return false;
-    }
-    if (endDate && new Date(party.deliveryDate) > new Date(endDate)) {
-      return false;
-    }
-    return true;
-  });
+  // const filteredToParties = toParties.filter((party) => {
+  //   if (filterStatus === "PENDING") return party.paymentStatus === "PENDING";
+  //   if (filterStatus === "RECEIVED") return party.paymentStatus === "RECEIVED";
+  //   return true; // Show all if filter is "ALL"
+  // }).filter((party) => {
+  //   // Filter by date range
+  //   if (startDate && new Date(party.deliveryDate) < new Date(startDate)) {
+  //     return false;
+  //   }
+  //   if (endDate && new Date(party.deliveryDate) > new Date(endDate)) {
+  //     return false;
+  //   }
+  //   return true;
+  // });
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -194,41 +207,39 @@ const handleFullyReceived = async (party) => {
       <table className="ledger-table">
         <thead>
           <tr>
-            <th>Delivery Date</th>
             <th>Party Name</th>
-            <th>Quantity</th>
-            <th>Rate</th>
-            <th>Total Amount</th>
-            <th>Outstanding Days</th>
+            <th>Debit</th>
+            <th>Credit</th>
+            <th>Total Outstanding</th>
             <th>Payment Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {filteredToParties.sort((a, b) => (a.paymentStatus === "PENDING" ? -1 : 1))
+        {toPartiesLedger.sort((a, b) => (a.balance === 0 ? 1 : -1))
           .map((party) => (
-            <tr key={party.pkId}>
-              <td>{new Date(party.deliveryDate).toLocaleDateString("en-CA")}</td>
-              <td>{party.selectedToParty.customerName}</td>
-              <td>{party.challanToPartiesQty}</td>
-              <td>{party.challanToPartiesRate}</td>
-              <td>{party.outstandingPayment}</td>
-              <td>{calculatePendingDays(party.deliveryDate)}</td>
-              <td className={party.paymentStatus === "RECEIVED" ? "received" : "pending"}>
+            <tr key={party.customerId}>
+              <td>{party.customerName}</td>
+              <td>{party.debit}</td>
+              <td>{party.credit}</td>
+              <td>{party.balance}</td>
+              <td className={party.balance === 0 ? "received" : "pending"}>
                 <img
-                    src={party.paymentStatus === "RECEIVED" ? completedImg : inProgressImg}
+                    src={party.balance === 0 ? completedImg : inProgressImg}
                     alt="Payment Status"
                     className=""
                 />
                 </td>
               
-                {party.paymentStatus === "PENDING" && (
-                    <td>
-                  <button onClick={() => handlePartiallyReceived(party)}>Partial</button>
-                  <button onClick={() => handleFullyReceived(party)}>Full</button>
-                   </td>
-                )}
-             
+                <td>
+                  {party.balance > 0 && (
+                    <>
+                      <button onClick={() => handlePartiallyReceived(party)}>Partial</button>
+                      <button onClick={() => handleFullyReceived(party)}>Full</button>
+                    </>
+                  )}
+                  <button className="ledger-detail-btn" onClick={() => handleViewDetails(party)} >Details</button>
+                </td>
             </tr>
           ))}
         </tbody>
