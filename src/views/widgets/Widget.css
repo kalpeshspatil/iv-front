@@ -1,0 +1,7 @@
+.vr{
+    background-color: rgb(139 138 140) !important;
+}
+.top-border-no-radius{
+    border-top-left-radius: 0rem !important;
+    border-top-right-radius: 0rem !important;
+}
