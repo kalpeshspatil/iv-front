@@ -10,6 +10,7 @@ import DatePicker from "react-datepicker";
 import { format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import { ImSwitch } from "react-icons/im";
+import AppBreadcrumb from "../AppLayout/AppBreadcrumb.jsx";
 
 
 export function home() {
@@ -340,7 +341,9 @@ export function home() {
   };
 
   return (
+   
     <div className="App">
+      <AppBreadcrumb> </AppBreadcrumb>
       <div className="row menubar">
         <div className="col-sm-12">
           <div className="col-sm-6 offset-sm-3">

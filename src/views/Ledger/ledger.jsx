@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./ledger.css"; // Add styling if needed
-import inProgressImg from "../../asset/inprogress.png";
-import completedImg from "../../asset/completed.png";
+import inProgressImg from "../../assets/images/inprogress.png";
+import completedImg from "../../assets/images/completed.png";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../constants.js";  
 import { format } from "date-fns";
+import { FaFilter } from "react-icons/fa"; // You can change this icon as needed
 
 
 
@@ -21,7 +22,8 @@ const Ledger = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const navigate = useNavigate();
-  
+  const [showFilters, setShowFilters] = useState(false);
+
 
 
   useEffect(() => {
@@ -173,47 +175,63 @@ const handleFullyReceived = async (party) => {
   });
 
   return (
-    <div className="ledger-container">
-      <button className="back-btn" onClick={() => navigate("/home")}>
-        Back to Home
-      </button>
-     {/* Headline Section */}
-  <div className="headline-container">
-    <h2>Transactions</h2>
-  </div>
+    <div className="ledger-container p-0">
+      
 
-  {/* Filters Section */}
-  <div className="filters-container">
-    <div className="filter-group">
-      <label>Payment Status:</label>
-      <select
-        value={filterStatus}
-        onChange={(e) => setFilterStatus(e.target.value)}
-      >
-        <option value="ALL">All</option>
-        <option value="PENDING">Pending</option>
-        <option value="RECEIVED">Received</option>
-      </select>
-    </div>
 
-    <div className="filter-group">
-      <label>Start Date:</label>
-      <input
-        type="date"
-        value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
-      />
-    </div>
+  {/* Toggle Button */}
+  <div className="d-flex justify-content-end mb-3">
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() => setShowFilters((prev) => !prev)}
+        >
+          <FaFilter className="me-2" />
+          {showFilters ? "Hide Filters" : "Show Filters"}
+        </button>
+      </div>
 
-    <div className="filter-group">
-      <label>End Date:</label>
-      <input
-        type="date"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-      />
-    </div>
-  </div>
+      {/* Filters Row - Collapsible */}
+      {showFilters && (
+        <div className="card p-3 mb-4 shadow-sm">
+          <div className="row g-3">
+            {/* Payment Status */}
+            <div className="col-md-4">
+              <label className="form-label">Payment Status</label>
+              <select
+                className="form-select"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="ALL">All</option>
+                <option value="PENDING">Pending</option>
+                <option value="RECEIVED">Received</option>
+              </select>
+            </div>
+
+            {/* Start Date */}
+            <div className="col-md-4">
+              <label className="form-label">Start Date</label>
+              <input
+                type="date"
+                className="form-control"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+
+            {/* End Date */}
+            <div className="col-md-4">
+              <label className="form-label">End Date</label>
+              <input
+                type="date"
+                className="form-control"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
 
       <table className="ledger-table">
@@ -230,7 +248,7 @@ const handleFullyReceived = async (party) => {
         <tbody>
         {filteredToParties.sort((a, b) => (a.balance === 0 ? 1 : -1))
   .map((party) => (
-            <tr key={party.customerId}>
+            <tr key={party.tpCustomerId}>
               <td>{party.customerName}</td>
               <td>{party.debit}</td>
               <td>{party.credit}</td>

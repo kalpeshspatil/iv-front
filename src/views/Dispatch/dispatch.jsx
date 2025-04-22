@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./dispatch.css";
-import pendingImg from "../../asset/pending.png";
-import completedImg from "../../asset/completed.png";
-import inProgressImg from "../../asset/inprogress.png";
-import deliveredImg from "../../asset/delivered.png";
-import cancelledImg from "../../asset/cancelled.png";
-import pdfExportImg from "../../asset/pdf.png";
+import pendingImg from "../../assets/images/pending.png";
+import completedImg from "../../assets/images/completed.png";
+import inProgressImg from "../../assets/images/inprogress.png";
+import deliveredImg from "../../assets/images/delivered.png";
+import cancelledImg from "../../assets/images/cancelled.png";
+import pdfExportImg from "../../assets/images/pdf.png";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { API_BASE_URL } from "../../constants.js";  
 import { FaEdit, FaCheck } from "react-icons/fa";
-
+import { FaFilter } from "react-icons/fa"; // For filter icon
 
 const Dispatch = () => {
   const [challans, setChallans] = useState([]);
@@ -24,6 +24,7 @@ const Dispatch = () => {
   const navigate = useNavigate();
   const [editingIndex, setEditingIndex] = useState(null);
   const [updatedVehicleNumber, setUpdatedVehicleNumber] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     fetchChallanData();
@@ -359,70 +360,93 @@ const Dispatch = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="container">
-      <button className="back-btn" onClick={() => navigate("/home")}>
-        Back to Home
-      </button>
+    <div className="container p-0">
 
-      <div className="headline-container">
-        <h2>Challans</h2>
+
+      {/* Toggle Button */}
+      <div className="container mb-2 d-flex justify-content-end pt-0">
+        <button
+          className="btn btn-outline-primary d-flex align-items-center"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          <FaFilter className="me-2" />
+          {showFilters ? "Hide Filters" : "Show Filters"}
+        </button>
       </div>
 
-      {/* Filters Section */}
-      <div className="container mt-4 mb-4">
-        <div className="row g-3 align-items-end">
-          {/* Payment Status Filter */}
-          <div className="col-sm-2">
-            <label htmlFor="filterStatus" className="form-label">
-              Payment Status:
-            </label>
-            <select
-              id="filterStatus"
-              className="form-select"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="ALL">All</option>
-              <option value="PENDING">Pending</option>
-              <option value="DELIVERED">Delivered</option>
-            </select>
-          </div>
+      {/* Collapsible Filters Section */}
+      {showFilters && (
+        <div className="container mb-4 mt-2">
+          <div className="card shadow-sm border-0">
+            <div className="card-body">
+              <div className="row g-3 align-items-end">
+                {/* Payment Status Filter */}
+                <div className="col-sm-3">
+                  <label htmlFor="filterStatus" className="form-label fw-semibold">
+                    Payment Status
+                  </label>
+                  <select
+                    id="filterStatus"
+                    className="form-select"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <option value="ALL">All</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="DELIVERED">Delivered</option>
+                  </select>
+                </div>
 
-          {/* Start Date Filter */}
-          <div className="col-sm-2">
-            <label htmlFor="startDate" className="form-label">
-              Start Date:
-            </label>
-            <input
-              type="date"
-              id="startDate"
-              className="form-control"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </div>
+                {/* Start Date Filter */}
+                <div className="col-sm-3">
+                  <label htmlFor="startDate" className="form-label fw-semibold">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    className="form-control"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
 
-          {/* End Date Filter */}
-          <div className="col-sm-2">
-            <label htmlFor="endDate" className="form-label">
-              End Date:
-            </label>
-            <input
-              type="date"
-              id="endDate"
-              className="form-control"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </div>
+                {/* End Date Filter */}
+                <div className="col-sm-3">
+                  <label htmlFor="endDate" className="form-label fw-semibold">
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    id="endDate"
+                    className="form-control"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
 
-          <div className="col-sm-1">
-            <button className="pdf-export-btn" onClick={exportPDF}>
-              <img src={pdfExportImg} alt="pdfExport" className="pdf-icon" />
-            </button>
+                {/* PDF Export Button */}
+                <div className="col-sm-3 d-flex align-items-center mt-3 mt-sm-0">
+                  <button
+                    className="btn btn-danger d-flex align-items-center justify-content-center"
+                    onClick={exportPDF}
+                  >
+                    <img
+                      src={pdfExportImg}
+                      alt="pdfExport"
+                      className="me-2"
+                      style={{ width: "18px", height: "18px" }}
+                    />
+                    
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+   
+
 
       {filteredChallans.map((challan) => {
         const isCompleted = matchPurchaseAndToQty(challan); // Calculate status for each challan
@@ -454,7 +478,7 @@ const Dispatch = () => {
       <>
         {challan.vehicleNumber || "N/A"}{" "}
         <button
-          className="btn btn-primary small-btn"
+          className="btn small-btn"
           onClick={() => handleEdit(challan)}
         >
           <FaEdit className="edit-icon" />
