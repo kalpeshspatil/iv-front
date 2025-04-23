@@ -1,7 +1,7 @@
 import React from 'react'
 
 const HomePage = React.lazy(() => import('./components/HomePage/home'))
-const Dispatch = React.lazy(() => import('./components/Dispatch/Dispatch'))
+const Dispatch = React.lazy(() => import('./components/Dispatch/dispatch'))
 const Ledger = React.lazy(() => import('./components/Ledger/Ledger'))
 const LedgerByToPartyCustomer = React.lazy(() => import('./components/LedgerByToPartyCustomer/LedgerByToPartyCustomer'))
 
