@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
-import Login from "./views/Login/login";
+import Login from "./components/Login/login";
 import ChallanModal from './components/ChallanModal/ChallanModal';
 import { ModalProvider } from './components/contexts/ModalContext';
 import { CSpinner } from '@coreui/react'

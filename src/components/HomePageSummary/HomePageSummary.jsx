@@ -7,10 +7,21 @@ import { FaChartPie } from "react-icons/fa";
 import { FaChartSimple } from "react-icons/fa6";
 import { IoIosPricetags } from "react-icons/io";
 import EditableTable  from "../EditableLandingPrices/EditableLandingPrice.jsx";
+import WidgetsDropdown from '../widgets/WidgetsDropdown'
+import StatCard from '../widgets/StatCardRow.js';
 
+import {
+
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CCol,
+  CRow,
+} from '@coreui/react'
 
 
 export function HomePageSummary() {
+
   const [homePageStats, setHomePageStats] = useState({
     a1Outstanding: null,
     accOutstanding: null,
@@ -21,6 +32,10 @@ export function HomePageSummary() {
     totalSaleOfShakti: null,
     noOfDuePayments: null,
     totalSale: null,
+    totalSaleOfAccConcretePlus: null,
+    totalSaleOfAccSuraksha: null,
+    totalSaleOfA1Ppc: null,
+    totalSaleOfShaktiPpc: null,
     a1: null,
     a2: null,
     a3: null,
@@ -28,8 +43,7 @@ export function HomePageSummary() {
     a5: null,
     a6: null,
   });
-  const [ageWiseOutstandingData, setAgeWiseOutstandingData] = useState(null);
-  const [products, setProducts] = useState([]); // List of products
+  
   
 
   useEffect(() => {
@@ -56,6 +70,11 @@ export function HomePageSummary() {
         totalSaleOfShakti: data.totalSaleOfShakti
           ? data.totalSaleOfShakti / 20
           : 0,
+          totalSaleOfAccConcretePlus: data.totalSaleOfAccConcretePlus ? data.totalSaleOfAccConcretePlus / 20 : 0,
+          totalSaleOfAccSuraksha: data.totalSaleOfAccSuraksha ? data.totalSaleOfAccSuraksha / 20 : 0,
+          totalSaleOfA1Ppc: data.totalSaleOfA1Ppc ? data.totalSaleOfA1Ppc / 20 : 0,
+          totalSaleOfShaktiPpc: data.totalSaleOfShaktiPpc ? data.totalSaleOfShaktiPpc / 20 : 0,
+  
         noOfDuePayments: data.noOfDuePayments || 0,
         totalSale:
           data.totalSaleOfA1 / 20 +
@@ -69,8 +88,6 @@ export function HomePageSummary() {
         a5: data.outstandingGroupByDaysDTO?.a5 || "0.00",
         a6: data.outstandingGroupByDaysDTO?.a6 || "0.00",
       });
-
-      setAgeWiseOutstandingData(data.outstandingGroupByDaysDTO || {});
     } catch (error) {
       console.error("Error fetching homepage stats:", error);
     }
@@ -80,7 +97,8 @@ export function HomePageSummary() {
 
   return (
       <div className="row">
-        <div className="col-sm-12">
+        <div className="col-sm-12 p-0">
+          
           <div className="col-lg-12">
             <div className="card">
               <div className="card-header">
@@ -95,7 +113,7 @@ export function HomePageSummary() {
               <div className="card-body">
                 <div className="row">
                   <div className="col-12 col-sm-6 col-md-3 ">
-                    <div className="info-box bg-info elevation-1">
+                    <div className="info-box card bg-primary text-white">
                       <span className="info-box-icon bg-success ">
                         <i className="fas fa-check-double"></i>
                       </span>
@@ -111,9 +129,10 @@ export function HomePageSummary() {
                         </span>
                       </div>
                     </div>
+                    
                   </div>
                   <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-info elevation-1">
+                    <div className="info-box card bg-info text-white">
                       <span className="info-box-icon ">
                         <i className="fas fa-check"></i>
                       </span>
@@ -121,7 +140,7 @@ export function HomePageSummary() {
                         <span className="info-box-text">
                           <h5>
                             <b>ACC</b>
-                          </h5>{" "}
+                          </h5>
                         </span>
                         <span className="info-box-number">
                           ₹ {homePageStats.accOutstanding}
@@ -130,7 +149,7 @@ export function HomePageSummary() {
                     </div>
                   </div>
                   <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-info elevation-1">
+                    <div className="info-box card bg-warning text-white">
                       <span className="info-box-icon ">
                         <i className="fas fa-clock"></i>
                       </span>
@@ -148,7 +167,7 @@ export function HomePageSummary() {
                     </div>
                   </div>
                   <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-warning elevation-1">
+                    <div className="info-box card bg-danger text-white">
                       <span className="info-box-icon ">
                         <i className="fas fa-clock"></i>
                       </span>
@@ -167,7 +186,52 @@ export function HomePageSummary() {
                   </div>
                 </div>
                 <div className="col-lg-12">
-            <div className="card">
+                  
+                 <CCard className="mb-4">
+                             <CCardHeader>Age Wise Outstanding
+                             </CCardHeader>
+                             <CCardBody>
+                               <CRow>
+                                 <CCol xs={12} md={6} xl={6}>
+                                   <CRow>
+                                     <CCol xs={6}>
+                                       <div className="border-start border-start-4 border-start-info py-1 px-3">
+                                         <div className="text-body-secondary text-truncate small">0 to 8 Days	</div>
+                                         <div className="fs-5 fw-semibold">{homePageStats?.a1 || 0}</div>
+                                       </div>
+                                     </CCol>
+                                     <CCol xs={6}>
+                                       <div className="border-start border-start-4 border-start-danger py-1 px-3 mb-3">
+                                         <div className="text-body-secondary text-truncate small">
+                                         9 to 15 Days
+                                         </div>
+                                         <div className="fs-5 fw-semibold">{homePageStats?.a2 || 0}</div>
+                                       </div>
+                                     </CCol>
+                                     
+                                   </CRow>
+                        
+                                 </CCol>
+                                 <CCol xs={12} md={6} xl={6}>
+                                   <CRow>
+                                     <CCol xs={6}>
+                                       <div className="border-start border-start-4 border-start-warning py-1 px-3 mb-3">
+                                         <div className="text-body-secondary text-truncate small">15 to 21 Days	</div>
+                                         <div className="fs-5 fw-semibold">{homePageStats?.a3 || 0}</div>
+                                       </div>
+                                     </CCol>
+                                     <CCol xs={6}>
+                                       <div className="border-start border-start-4 border-start-success py-1 px-3 mb-3">
+                                         <div className="text-body-secondary text-truncate small">21+ Days</div>
+                                         <div className="fs-5 fw-semibold">{homePageStats?.a4 || 0}</div>
+                                       </div>
+                                     </CCol>
+                                   </CRow>
+                                   </CCol>
+                                   </CRow>
+                                   </CCardBody>
+                 </CCard>
+            {/* <div className="card">
               <div className="card-header">
                 <div className="d-flex justify-content-between">
                   <h3 className="card-title">
@@ -201,9 +265,6 @@ export function HomePageSummary() {
                       <th className="text-right" rowSpan="1" colSpan="1">
                         30+ Days
                       </th>
-                      <th className="text-right" rowSpan="1" colSpan="1">
-                        Total
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -213,7 +274,6 @@ export function HomePageSummary() {
                       <td className="text-right">{homePageStats?.a3 || 0}</td>
                       <td className="text-right">{homePageStats?.a4 || 0}</td>
                       <td className="text-right">{homePageStats?.a5 || 0}</td>
-                      <td className="text-right">{homePageStats?.a6 || 0}</td>
                       <td className="text-right">
                         {homePageStats.totalOutstanding}
                       </td>
@@ -221,7 +281,7 @@ export function HomePageSummary() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </div> */}
           </div>
               </div>
             </div>
@@ -238,82 +298,11 @@ export function HomePageSummary() {
                   </h3>
                 </div>
               </div>
+              
+
               <div className="card-body">
-                <div className="row">
-                  <div className="col-12 col-sm-6 col-md-3 ">
-                    <div className="info-box bg-info elevation-1">
-                      <span className="info-box-icon bg-success ">
-                        <i className="fas fa-check-double"></i>
-                      </span>
-
-                      <div className="info-box-content">
-                        <span className="info-box-text">
-                          <h5>
-                            <b>Birla A1</b>
-                          </h5>
-                        </span>
-                        <span className="info-box-number">
-                          {" "}
-                          {homePageStats.totalSaleOfA1}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-info elevation-1">
-                      <span className="info-box-icon ">
-                        <i className="fas fa-check"></i>
-                      </span>
-                      <div className="info-box-content">
-                        <span className="info-box-text">
-                          <h5>
-                            <b>ACC</b>
-                          </h5>{" "}
-                        </span>
-                        <span className="info-box-number">
-                          {homePageStats.totalSaleOfAcc}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-info elevation-1">
-                      <span className="info-box-icon ">
-                        <i className="fas fa-clock"></i>
-                      </span>
-
-                      <div className="info-box-content">
-                        <span className="info-box-text">
-                          <h5>
-                            <b>Shakti </b>
-                          </h5>
-                        </span>
-                        <span className="info-box-number">
-                          {homePageStats.totalSaleOfShakti}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-12 col-sm-6 col-md-3">
-                    <div className="info-box mb-3 bg-warning elevation-1">
-                      <span className="info-box-icon ">
-                        <i className="fas fa-clock"></i>
-                      </span>
-
-                      <div className="info-box-content">
-                        <span className="info-box-text">
-                          <h5>
-                            <b>Total Sale </b>
-                          </h5>
-                        </span>
-                        <span className="info-box-number">
-                          {homePageStats.totalSale}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <WidgetsDropdown className="mb-0" homePageStats={homePageStats}/>
+              <StatCard homePageStats={homePageStats} className="mt-0 border-top-0"/>
               </div>
             </div>
           </div>
