@@ -39,6 +39,37 @@ const _nav = [
     badge: {
       color: 'info'
     },
+  },
+  {
+    component: CNavGroup,
+    name: 'Reports',
+    icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Sales',
+        to: '/sales/report',
+      },
+      {
+        component: CNavItem,
+        name: 'Purchase',
+        to: '/purchase/report',
+      },
+     
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Tools',
+    icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Excel I/E',
+        to: '/tool/excelReportImportExport',
+      }
+     
+    ],
   }
 ]
 
