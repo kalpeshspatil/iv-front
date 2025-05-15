@@ -7,6 +7,9 @@ const LedgerByToPartyCustomer = React.lazy(() => import('./components/LedgerByTo
 const SalesReport = React.lazy(()=> import('./components/SalesReport/SalesReport'))
 const PurchaseReport = React.lazy(()=> import('./components/PurchaseReport/PurchaseReport'))
 const ExcelReportImportExportTool = React.lazy(()=> import('./components/ExcelReportImportExportTool/ExcelReportImportExportTool'))
+const Products = React.lazy(()=> import('./components/Products/Products'))
+const ToParty = React.lazy(()=> import('./components/ToPartyCustomer/ToPartyCustomer'))
+const PfParty = React.lazy(()=> import('./components/PurchaseFromParty/PurchaseFromParty'))
 
 
 const routes = [
@@ -17,8 +20,12 @@ const routes = [
   { path: "/ledger/:customerId", name: 'ToPartyCustomer Ledger', element:LedgerByToPartyCustomer },
   { path: '/sales/report', name: 'Sales Report', element: SalesReport },
   { path: '/purchase/report', name: 'Purchase Report', element: PurchaseReport },
-  { path: '/tool/excelReportImportExport', name: 'Excel Import-Export Tool', element: ExcelReportImportExportTool }
+  { path: '/tool/excelReportImportExport', name: 'Excel Import-Export Tool', element: ExcelReportImportExportTool },
+  { path: '/products', name: 'Products Management', element: Products },
+  { path: '/toParty', name: 'To Party customer Management', element: ToParty },
+  { path: '/pfParty', name: 'Purchase From Party customer Management', element: PfParty }
 
+  
 ]
 
 export default routes
