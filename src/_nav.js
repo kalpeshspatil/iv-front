@@ -70,6 +70,29 @@ const _nav = [
       }
      
     ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Registration',
+    icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Products',
+        to: '/products',
+      },
+      {
+        component: CNavItem,
+        name: 'To Party',
+        to: '/toParty',
+      },
+      {
+        component: CNavItem,
+        name: 'Purchase Party',
+        to: '/pfParty',
+      }
+     
+    ],
   }
 ]
 
