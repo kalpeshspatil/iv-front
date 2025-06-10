@@ -12,11 +12,12 @@ const SalesReport = () => {
     value: "ALL",
     label: "ALL",
   });
+  const [selectedProductBrand, setSelectedProductBrand] = useState({ value: "ALL", label: "ALL" });
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [toParties, setToParties] = useState([]);
   const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [salesReportData, setSalesReportData] = useState([]);
   
   // Pagination state
@@ -48,45 +49,62 @@ const SalesReport = () => {
     }
   };
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/products`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+ const fetchProducts = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/products`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
     }
-  };
+
+    const data = await response.json();
+
+    // Get unique product brands
+    const seenBrands = new Set();
+    const uniqueBrandOptions = data
+      .filter((product) => {
+        if (seenBrands.has(product.productBrand)) return false;
+        seenBrands.add(product.productBrand);
+        return true;
+      })
+      .map((product) => ({
+        value: product.productBrand,
+        label: product.productBrand,
+      }));
+
+    // Add "ALL" option
+    setProducts([{ value: "ALL", label: "ALL" }, ...uniqueBrandOptions]);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+  }
+};
+
 
   const handleFilterStatusOfTpCustomer = (selectedOption) => {
     setFilterStatusOfTpCustomer(selectedOption);
   };
 
   const handleProductChange = (selectedOption) => {
-    setSelectedProduct(selectedOption);
+    setSelectedProductBrand(selectedOption);
   };
 
   const handleGenerate = async () => {
     try {
-      const requestBody = {
-        customerId:
-          filterStatusOfTpCustomer.value === "ALL"
-            ? null
-            : filterStatusOfTpCustomer.value,
-        productBrand: selectedProduct ? selectedProduct.label : null,
-        startDate: startDate || null,
-        endDate: endDate || null,
-      };
+     const requestBody = {
+  customerId:
+    filterStatusOfTpCustomer.value === "ALL"
+      ? null
+      : filterStatusOfTpCustomer.value,
+  productBrand:
+    selectedProductBrand?.value === "ALL" ? null : selectedProductBrand?.value,
+  startDate: startDate || null,
+  endDate: endDate || null,
+};
 
       const response = await fetch(`${API_BASE_URL}/api/sales/report`, {
         method: "POST",
@@ -163,13 +181,9 @@ const SalesReport = () => {
               <div className="col-md-3">
                 <label className="form-label">Brand</label>
                 <Select
-                  value={selectedProduct}
+                  value={selectedProductBrand}
                   onChange={handleProductChange}
-                  options={products.map((product) => ({
-                    value: product.productId,
-                    label: `${product.productBrand}`,
-                    product,
-                  }))}
+                  options={products}
                   required
                   placeholder="Select a Product"
                 />

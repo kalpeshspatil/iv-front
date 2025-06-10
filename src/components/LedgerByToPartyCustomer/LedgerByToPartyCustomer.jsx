@@ -39,31 +39,36 @@ const LedgerByToPartyCustomer = () => {
     fetchToPartiesLedger();
   }, [customerId]);
 
-  const fetchToPartiesLedger = async () => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/challanToParties/ledger/` + customerId,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
+const fetchToPartiesLedger = async () => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/challanToParties/ledger/` + customerId,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
+    );
 
-      const data = await response.json();
-      setToPartyLedger(data);
-      setCurrentPage(1);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error("Failed to fetch data");
     }
-  };
+
+    const data = await response.json();
+
+    // Sort by date descending (latest first)
+    const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    setToPartyLedger(sortedData);
+    setCurrentPage(1);
+  } catch (error) {
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Pagination calculations
   const indexOfLastRecord = currentPage * recordsPerPage;

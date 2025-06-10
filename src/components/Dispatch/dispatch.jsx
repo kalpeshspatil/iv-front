@@ -506,7 +506,7 @@ const Dispatch = () => {
                   <strong> {challan.purchaseFrom.pfCustomerName}</strong>
                 </p>
                 <p>
-                  Product:<strong> {challan.product.productName}</strong>
+                  Product:<strong>{challan.product.productBrand} {challan.product.productName}</strong>
                 </p>
                 <p>
                   Delivery Date:
