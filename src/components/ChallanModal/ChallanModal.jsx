@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useModal } from "../contexts/ModalContext";
-import {
-  CModal
-} from "@coreui/react";
+import { CModal } from "@coreui/react";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { API_BASE_URL } from "../../constants.js";
@@ -171,7 +169,6 @@ const ChallanModal = () => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
       const data = await response.json(); // Parsing the JSON data from the response
       setToParties(data); // Set the toParty data in the state
     } catch (error) {
@@ -180,8 +177,13 @@ const ChallanModal = () => {
   };
 
   const closeModal = () => {
-    // Reset form fields
-    setProduct("");
+    resetFormState();
+   // window.location.reload(); //Refresh the page
+  };
+
+  const resetFormState = () => {
+    setStep("purchase");
+     setProduct("");
     setPFrom("");
     setPRate("");
     setPQty("");
@@ -201,6 +203,7 @@ const ChallanModal = () => {
     });
     setSelectedFromParty(""); // Reset From Party on closing modal
     setSelectedProduct("");
+    setChallanDate(new Date());
   };
 
   const handlePurchaseChange = (e) => {
