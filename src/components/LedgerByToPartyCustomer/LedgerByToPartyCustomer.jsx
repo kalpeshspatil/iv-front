@@ -57,14 +57,7 @@ const LedgerByToPartyCustomer = () => {
 
       // Sort by date descending (latest first)
       const sortedData = data.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-
-        if (dateA.getTime() === dateB.getTime()) {
-          return b.id - a.id; // descending by ID if dates are equal
-        }
-
-        return dateB - dateA; // descending by date
+        return b.id - a.id; // descending by ID if dates are equal
       });
       setToPartyLedger(sortedData);
       setCurrentPage(1);
