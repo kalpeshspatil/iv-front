@@ -31,49 +31,57 @@ const LedgerByToPartyCustomer = () => {
   const totalPages = Math.ceil(toPartyLedger.length / recordsPerPage);
 
   const outstandingBalance =
-    toPartyLedger.length > 0
-      ? toPartyLedger[0].balance
-      : 0;
+    toPartyLedger.length > 0 ? toPartyLedger[0].balance : 0;
 
   useEffect(() => {
     fetchToPartiesLedger();
   }, [customerId]);
 
-const fetchToPartiesLedger = async () => {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/challanToParties/ledger/` + customerId,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+  const fetchToPartiesLedger = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/challanToParties/ledger/` + customerId,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch data");
+      const data = await response.json();
+
+      // Sort by date descending (latest first)
+      const sortedData = data.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+
+        if (dateA.getTime() === dateB.getTime()) {
+          return b.id - a.id; // descending by ID if dates are equal
+        }
+
+        return dateB - dateA; // descending by date
+      });
+      setToPartyLedger(sortedData);
+      setCurrentPage(1);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-
-    // Sort by date descending (latest first)
-    const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    setToPartyLedger(sortedData);
-    setCurrentPage(1);
-  } catch (error) {
-    setError(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   // Pagination calculations
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = toPartyLedger.slice(indexOfFirstRecord, indexOfLastRecord);
+  const currentRecords = toPartyLedger.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
 
   const goToPreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -111,10 +119,14 @@ const fetchToPartiesLedger = async () => {
                   <div className="col-sm-4">
                     <div className="text-sm text-left mt-3 sm:mt-0 sm:ml-4">
                       <div>
-                        <span className="font-medium"><b>Customer Name</b></span>
+                        <span className="font-medium">
+                          <b>Customer Name</b>
+                        </span>
                       </div>
                       <div>
-                        <span className="font-medium"><b>Outstanding Balance</b></span>
+                        <span className="font-medium">
+                          <b>Outstanding Balance</b>
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -124,7 +136,9 @@ const fetchToPartiesLedger = async () => {
                         <span className="font-medium">: {customerName}</span>
                       </div>
                       <div>
-                        <span className="font-medium">: ₹ {outstandingBalance}</span>
+                        <span className="font-medium">
+                          : ₹ {outstandingBalance}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -138,11 +152,21 @@ const fetchToPartiesLedger = async () => {
           <CTable align="middle" className="mb-0 border" hover responsive>
             <CTableHead className="text-nowrap">
               <CTableRow>
-                <CTableHeaderCell className="bg-body-tertiary">Date</CTableHeaderCell>
-                <CTableHeaderCell className="bg-body-tertiary">Particular</CTableHeaderCell>
-                <CTableHeaderCell className="bg-body-tertiary">Debit</CTableHeaderCell>
-                <CTableHeaderCell className="bg-body-tertiary">Credit</CTableHeaderCell>
-                <CTableHeaderCell className="bg-body-tertiary">Balance</CTableHeaderCell>
+                <CTableHeaderCell className="bg-body-tertiary">
+                  Date
+                </CTableHeaderCell>
+                <CTableHeaderCell className="bg-body-tertiary">
+                  Particular
+                </CTableHeaderCell>
+                <CTableHeaderCell className="bg-body-tertiary">
+                  Debit
+                </CTableHeaderCell>
+                <CTableHeaderCell className="bg-body-tertiary">
+                  Credit
+                </CTableHeaderCell>
+                <CTableHeaderCell className="bg-body-tertiary">
+                  Balance
+                </CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -160,46 +184,52 @@ const fetchToPartiesLedger = async () => {
 
           {/* Pagination and Export Button */}
           {toPartyLedger.length > recordsPerPage && (
-        <div className="d-flex justify-content-between align-items-center mt-4 gap-2">
-        {/* Pagination (only if needed) */}
-        {totalPages > 1 && (
-          <div className="d-flex gap-2">
-            <button
-              className="btn btn-sm btn-outline-secondary"
-              onClick={goToPreviousPage}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-      
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-              <button
-                key={page}
-                className={`btn btn-sm ${currentPage === page ? "btn-primary" : "btn-outline-primary"}`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-      
-            <button
-              className="btn btn-sm btn-outline-secondary"
-              onClick={goToNextPage}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </div>
-        )}
-      
-        {/* Export Button (always visible) */}
-        <div>
-          <button className="btn btn-sm btn-outline-success" onClick={exportToExcel}>
-            <PiMicrosoftExcelLogoFill className="me-2" />
-            Export to Excel
-          </button>
-        </div>
-      </div>
+            <div className="d-flex justify-content-between align-items-center mt-4 gap-2">
+              {/* Pagination (only if needed) */}
+              {totalPages > 1 && (
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+
+                  {Array.from(
+                    { length: totalPages },
+                    (_, index) => index + 1
+                  ).map((page) => (
+                    <button
+                      key={page}
+                      className={`btn btn-sm ${currentPage === page ? "btn-primary" : "btn-outline-primary"}`}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+
+              {/* Export Button (always visible) */}
+              <div>
+                <button
+                  className="btn btn-sm btn-outline-success"
+                  onClick={exportToExcel}
+                >
+                  <PiMicrosoftExcelLogoFill className="me-2" />
+                  Export to Excel
+                </button>
+              </div>
+            </div>
           )}
         </CCardBody>
       </CCard>
