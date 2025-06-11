@@ -32,7 +32,7 @@ const LedgerByToPartyCustomer = () => {
 
   const outstandingBalance =
     toPartyLedger.length > 0
-      ? toPartyLedger[toPartyLedger.length - 1].balance
+      ? toPartyLedger[0].balance
       : 0;
 
   useEffect(() => {
