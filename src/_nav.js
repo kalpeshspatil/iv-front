@@ -67,6 +67,11 @@ const _nav = [
         component: CNavItem,
         name: 'Excel I/E',
         to: '/tool/excelReportImportExport',
+      },
+      {
+        component: CNavItem,
+        name: 'PDF Editor',
+        to: '/tool/pdfEditor',
       }
      
     ],
