@@ -84,7 +84,7 @@ const Ledger = () => {
 
       if (response.ok) {
         alert("Full payment recorded successfully!");
-        fetchToParties(); // Refresh the list
+        fetchToPartiesLedger(); // Refresh the list
       } else {
         alert("Error recording full payment.");
       }
@@ -111,7 +111,9 @@ const Ledger = () => {
 
     const paymentData = {
       paymentDate: formattedDate,
-      challanToParties: { pkId: selectedParty.pkId },
+      toParty: { 
+        tpCustomerId: parseInt(selectedParty.tpCustomerId, 10)
+      },
       payment: receivedAmount,
     };
 
@@ -127,7 +129,7 @@ const Ledger = () => {
       if (response.ok) {
         alert("Partial payment recorded successfully!");
         setShowDialog(false);
-        fetchToParties(); // Refresh list after payment
+        fetchToPartiesLedger(); // Refresh list after payment
       } else {
         alert("Error recording partial payment.");
       }
