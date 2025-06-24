@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import PrivateRoute from "./PrivateRoute";
 import LedgerByToPartyCustomer from "./components/LedgerByToPartyCustomer/LedgerByToPartyCustomer";
-
+import './style.css';
 
 
 

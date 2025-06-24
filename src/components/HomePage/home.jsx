@@ -3,7 +3,7 @@ import "./home.css";
 import "react-toastify/dist/ReactToastify.css";
 import HomePageSummary from "../HomePageSummary/HomePageSummary.jsx";
 import { API_BASE_URL } from "../../constants.js";
-import "react-datepicker/dist/react-datepicker.css";
+
 
 
 
