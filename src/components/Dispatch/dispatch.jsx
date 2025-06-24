@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./dispatch.css";
@@ -10,9 +9,10 @@ import cancelledImg from "../../assets/images/cancelled.png";
 import pdfExportImg from "../../assets/images/pdf.png";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { API_BASE_URL } from "../../constants.js";  
+import { API_BASE_URL } from "../../constants.js";
 import { FaEdit, FaCheck } from "react-icons/fa";
 import { FaFilter } from "react-icons/fa"; // For filter icon
+import DeliveryStatusModal from "./deliveryStatus.jsx";
 
 const Dispatch = () => {
   const [challans, setChallans] = useState([]);
@@ -26,6 +26,10 @@ const Dispatch = () => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [updatedVehicleNumber, setUpdatedVehicleNumber] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedChallan, setSelectedChallan] = useState(null);
+  const [selectedParty, setSelectedParty] = useState(null);
+  const [isVehicleRequired, setIsVehicleRequired] = useState(false);
 
   useEffect(() => {
     fetchChallanData();
@@ -36,6 +40,39 @@ const Dispatch = () => {
     setUpdatedVehicleNumber(challan.vehicleNumber || ""); // handle null/undefined
   };
 
+  const handleDeliveryClick = (challan, party) => {
+    const remainingPending = challan.challanToParties.filter(
+      (p) => p.orderStatus === "PENDING"
+    );
+
+    // Check if only this party is pending
+    const isOnlyPending =
+      remainingPending.length === 1 && remainingPending[0].pkId === party.pkId;
+
+    setSelectedChallan(challan);
+    setSelectedParty(party);
+    setIsVehicleRequired(isOnlyPending); // Add this state
+    setShowModal(true);
+  };
+
+  const handleModalConfirm = ({ vehicleNumber, deliveryDate }) => {
+    if (selectedChallan && selectedParty) {
+      handleStatusChange(
+        selectedParty,
+        selectedParty.pkId,
+        "DELIVERED",
+        selectedChallan.challanId,
+        vehicleNumber,
+        deliveryDate
+      );
+    }
+
+    setShowModal(false);
+    setSelectedChallan(null);
+    setSelectedParty(null);
+    window.location.reload();
+  };
+
   const handleSave = (challan) => {
     const updatedChallanList = challans.map((c) => {
       if (c.challanId === challan.challanId) {
@@ -43,14 +80,10 @@ const Dispatch = () => {
       }
       return c;
     });
-  
+
     setChallans(updatedChallanList); // Trigger proper re-render
     updateChallan({ ...challan, vehicleNumber: updatedVehicleNumber });
     setEditingIndex(null);
-  };
-
-  const toggleDropdown = (partyId) => {
-    setOpenDropdownId(openDropdownId === partyId ? null : partyId); // Toggle the dropdown for the clicked party
   };
 
   const matchPurchaseAndToQty = (challan) => {
@@ -95,10 +128,23 @@ const Dispatch = () => {
 
   // API call to mark Challan as Completed
 
-  const handleStatusChange = async (partyId, status, challanId) => {
+  const handleStatusChange = async (
+    challanToParty,
+    partyId,
+    status,
+    challanId,
+    vehicleNumber,
+    deliveryDate
+  ) => {
     console.log(`Changing status of party ID ${partyId} to ${status}`);
 
     try {
+      const payload = {
+        ...challanToParty,
+        orderStatus: status,
+        vehicleNumber,
+        deliveryDate,
+      };
       // Step 1: Update single toParty status via API
       const response = await fetch(
         `${API_BASE_URL}/api/challanToParties/updateStatus`,
@@ -107,10 +153,7 @@ const Dispatch = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            pkId: partyId,
-            orderStatus: status, // Pass the updated status
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -174,11 +217,11 @@ const Dispatch = () => {
         },
         body: JSON.stringify(challan),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to update challan");
       }
-  
+
       const data = await response.json();
       console.log("Challan updated:", data);
     } catch (error) {
@@ -186,25 +229,21 @@ const Dispatch = () => {
     }
   };
 
-
   const updateChallanStatus = async (challanId, status) => {
     try {
-      if (status != "DELIVERED") {
+      if (status !== "DELIVERED" && status !== "CANCELLED") {
         status = "PENDING";
       }
-      const response = await fetch(
-        `${API_BASE_URL}/api/challan/updateStatus`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            challanId: challanId,
-            status: status,
-          }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/challan/updateStatus`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          challanId: challanId,
+          status: status,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to update challan status");
@@ -362,8 +401,6 @@ const Dispatch = () => {
 
   return (
     <div className="container p-0">
-
-
       {/* Toggle Button */}
       <div className="container mb-2 d-flex justify-content-end pt-0">
         <button
@@ -383,7 +420,10 @@ const Dispatch = () => {
               <div className="row g-3 align-items-end">
                 {/* Payment Status Filter */}
                 <div className="col-sm-3">
-                  <label htmlFor="filterStatus" className="form-label fw-semibold">
+                  <label
+                    htmlFor="filterStatus"
+                    className="form-label fw-semibold"
+                  >
                     Payment Status
                   </label>
                   <select
@@ -438,7 +478,6 @@ const Dispatch = () => {
                       className="me-2"
                       style={{ width: "18px", height: "18px" }}
                     />
-                    
                   </button>
                 </div>
               </div>
@@ -446,8 +485,6 @@ const Dispatch = () => {
           </div>
         </div>
       )}
-   
-
 
       {filteredChallans.map((challan) => {
         const isCompleted = matchPurchaseAndToQty(challan); // Calculate status for each challan
@@ -461,33 +498,38 @@ const Dispatch = () => {
                   Challan: <strong> {challan.challanId}</strong>
                 </p>
                 <p>
-  Veh No:
-  <strong>
-    {editingIndex === challan.challanId ? (
-      <>
-        <input
-          type="text"
-          value={updatedVehicleNumber}
-          onChange={(e) => setUpdatedVehicleNumber(e.target.value)}
-          className="vehicle-input"
-        />
-        <button className="btn small-btn" onClick={() => handleSave(challan)}>
-          <FaCheck className="save-icon" />
-        </button>
-      </>
-    ) : (
-      <>
-        {challan.vehicleNumber || "N/A"}{" "}
-        <button
-          className="btn small-btn"
-          onClick={() => handleEdit(challan)}
-        >
-          <FaEdit className="edit-icon" />
-        </button>
-      </>
-    )}
-  </strong>
-</p>
+                  Veh No:
+                  <strong>
+                    {editingIndex === challan.challanId ? (
+                      <>
+                        <input
+                          type="text"
+                          value={updatedVehicleNumber}
+                          onChange={(e) =>
+                            setUpdatedVehicleNumber(e.target.value)
+                          }
+                          className="vehicle-input"
+                        />
+                        <button
+                          className="btn small-btn"
+                          onClick={() => handleSave(challan)}
+                        >
+                          <FaCheck className="save-icon" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {challan.vehicleNumber || "N/A"}{" "}
+                        <button
+                          className="btn small-btn"
+                          onClick={() => handleEdit(challan)}
+                        >
+                          <FaEdit className="edit-icon" />
+                        </button>
+                      </>
+                    )}
+                  </strong>
+                </p>
                 <p>
                   Order Date:
                   <strong>
@@ -506,7 +548,10 @@ const Dispatch = () => {
                   <strong> {challan.purchaseFrom.pfCustomerName}</strong>
                 </p>
                 <p>
-                  Product:<strong>{challan.product.productBrand} {challan.product.productName}</strong>
+                  Product:
+                  <strong>
+                    {challan.product.productBrand} {challan.product.productName}
+                  </strong>
                 </p>
                 <p>
                   Delivery Date:
@@ -570,43 +615,49 @@ const Dispatch = () => {
                         )}
                       </td>
                       <td>
-                              <button
-                                className="bg-success"
-                                onClick={() =>
-                                  handleStatusChange(
-                                    party.pkId,
-                                    "DELIVERED",
-                                    challan.challanId
-                                  )
-                                }
-                              >
-                                D
-                              </button>
-                              <button
-                                className="bg-warning"
-                                onClick={() =>
-                                  handleStatusChange(
-                                    party.pkId,
-                                    "PENDING",
-                                    challan.challanId
-                                  )
-                                }
-                              >
-                                P
-                              </button>
-                              <button
-                                className="bg-danger"
-                                onClick={() =>
-                                  handleStatusChange(
-                                    party.pkId,
-                                    "CANCELLED",
-                                    challan.challanId
-                                  )
-                                }
-                              >
-                                C
-                              </button>
-                       
+                        {/* D - Deliver: Only if not already DELIVERED */}
+                        {party.orderStatus !== "DELIVERED" && (
+                          <button
+                            className="bg-success"
+                            onClick={() => handleDeliveryClick(challan, party)}
+                          >
+                            D
+                          </button>
+                        )}
+
+                        {/* P - Pending: Only if not already PENDING */}
+                        {party.orderStatus !== "PENDING" && (
+                          <button
+                            className="bg-warning"
+                            onClick={() =>
+                              handleStatusChange(
+                                party,
+                                party.pkId,
+                                "PENDING",
+                                challan.challanId
+                              )
+                            }
+                          >
+                            P
+                          </button>
+                        )}
+
+                        {/* C - Cancel: Only if not already CANCELLED */}
+                        {party.orderStatus !== "CANCELLED" && (
+                          <button
+                            className="bg-danger"
+                            onClick={() =>
+                              handleStatusChange(
+                                party,
+                                party.pkId,
+                                "CANCELLED",
+                                challan.challanId
+                              )
+                            }
+                          >
+                            C
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -616,6 +667,15 @@ const Dispatch = () => {
           </div>
         );
       })}
+
+      <DeliveryStatusModal
+        show={showModal}
+        challan={selectedChallan}
+        party={selectedParty} // if needed inside modal
+        isVehicleRequired={isVehicleRequired}
+        onClose={() => setShowModal(false)}
+        onConfirm={handleModalConfirm}
+      />
     </div>
   );
 };

@@ -5,6 +5,8 @@ import ChallanModal from './components/ChallanModal/ChallanModal';
 import { ModalProvider } from './components/contexts/ModalContext';
 import { CSpinner } from '@coreui/react'
 import './scss/style.scss'
+import './style.css';
+import "react-datepicker/dist/react-datepicker.css";
 
 
 // Containers
