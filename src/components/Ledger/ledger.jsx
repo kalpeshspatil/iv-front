@@ -64,11 +64,10 @@ const Ledger = () => {
   const handleFullyReceived = async (party) => {
     if (!party) return;
 
-    // const fullAmount = party.challanToPartiesQty * party.challanToPartiesRate; // Total amount
     const paymentData = {
       paymentDate: new Date().toISOString().split("T")[0], // 'yyyy-MM-dd', // Today's date
-      challanToParties: {
-        pkId: party.tpCustomerId,
+      toParty: { 
+        tpCustomerId: parseInt(party.tpCustomerId, 10)
       },
       payment: party.balance,
     };
