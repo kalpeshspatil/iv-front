@@ -10,7 +10,7 @@ import { FaFilter } from "react-icons/fa"; // You can change this icon as needed
 const Ledger = () => {
   const [toParties, setToParties] = useState([]);
   const [toPartiesLedger, setToPartiesLedger] = useState([]);
-  const [filterStatus, setFilterStatus] = useState("PENDING"); // Filter: ALL, PENDING, RECEIVED
+  const [filterStatus, setFilterStatus] = useState("ALL"); // Filter: ALL, PENDING, RECEIVED
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showDialog, setShowDialog] = useState(false);

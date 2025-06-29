@@ -123,7 +123,7 @@ const LedgerByToPartyCustomer = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="col-sm-4">
+                  <div className="col-sm-8">
                     <div className="text-sm text-right mt-3 sm:mt-0 sm:ml-4">
                       <div>
                         <span className="font-medium">: {customerName}</span>
