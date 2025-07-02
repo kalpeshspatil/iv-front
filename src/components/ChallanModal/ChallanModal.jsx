@@ -33,6 +33,10 @@ const ChallanModal = () => {
     },
     challanToPartiesRate: "",
     challanToPartiesQty: 0,
+    retailer: {
+      tpCustomerId: "",
+      customerName: "",
+    }
   }); // State for the current "To Party" entry
   // State for handling product selection and form fields
   const [products, setProducts] = useState([]); // List of products
@@ -42,6 +46,9 @@ const ChallanModal = () => {
   const [toParties, setToParties] = useState([]); // State for storing the parties list
 
   const [challanDate, setChallanDate] = useState(new Date()); // default to today
+
+  const [isRetailerDifferent, setIsRetailerDifferent] = useState(false);
+  const [selectedRetailer, setSelectedRetailer] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -178,12 +185,12 @@ const ChallanModal = () => {
 
   const closeModal = () => {
     resetFormState();
-   // window.location.reload(); //Refresh the page
+    // window.location.reload(); //Refresh the page
   };
 
   const resetFormState = () => {
     setStep("purchase");
-     setProduct("");
+    setProduct("");
     setPFrom("");
     setPRate("");
     setPQty("");
@@ -251,14 +258,34 @@ const ChallanModal = () => {
         return;
       }
 
+
+      if (isRetailerDifferent && selectedRetailer) {
+        currentToParty.retailer = {
+          tpCustomerId: selectedRetailer.value,
+          customerName: selectedRetailer.label,
+        };
+      } else {
+        // by default, toParty is also the retailer
+        currentToParty.retailer = {
+          tpCustomerId: toParty.value,
+          customerName: toParty.label,
+        };
+      }
+
       setToPartyEntries([...toPartyEntries, currentToParty]);
+      // Reset fields
       setCurrentToParty({
-        selectedToParty: "",
+        selectedToParty: {
+          tpCustomerId: "",
+          customerName: "",
+        },
         challanToPartiesRate: "",
         challanToPartiesQty: "",
       });
 
       setToParty(null);
+      setSelectedRetailer(null);
+      setIsRetailerDifferent(false);
       setChallanToPartiesQty("");
       setChallanToPartiesRate("");
     } else {
@@ -347,8 +374,8 @@ const ChallanModal = () => {
             <div className="row">
               <div className="segmented-container">
                 <div className="col-lg-12 d-flex">
-                  <div className="col-lg-6 d-flex gap-1 px-1">
-                    {[240, 360, 400, 600].map((val) => (
+                  <div className="col-lg-10 d-flex gap-1 px-1">
+                    {[240, 360, 400, 500, 600, 610, 700].map((val) => (
                       <label
                         key={val}
                         className={`segment ${Number(purchaseForm.pQty) === val ? "selected" : ""}`}
@@ -364,7 +391,7 @@ const ChallanModal = () => {
                       </label>
                     ))}
                   </div>
-                  <div className="col-lg-6 ml-1">
+                  <div className="col-lg-2 ml-1">
                     <input
                       type="number"
                       placeholder="Custom"
@@ -448,22 +475,34 @@ const ChallanModal = () => {
             </div>
 
             <div className="form-group">
-              <input
-                type="number"
-                name="challanToPartiesRate"
-                placeholder="Enter Rate"
-                step="0.01"
-                value={challanToPartiesRate}
-                onChange={handleToPartyChange}
-                className="form-input"
-              />
+              <label className="d-block">
+                <input
+                  type="checkbox"
+                  checked={isRetailerDifferent}
+                  onChange={() => setIsRetailerDifferent(!isRetailerDifferent)}
+                />{" "}
+                Retailer is different
+              </label>
             </div>
 
+            {isRetailerDifferent && (
+              <div className="form-group">
+                <Select
+                  value={selectedRetailer}
+                  onChange={setSelectedRetailer}
+                  options={toParties.map((party) => ({
+                    value: party.tpCustomerId,
+                    label: party.customerName,
+                  }))}
+                  placeholder="Select Retailer"
+                />
+              </div>
+            )}
             <div className="row">
               <div className="segmented-container">
                 <div className="col-lg-12 d-flex">
-                  <div className="col-lg-6 d-flex gap-1 px-1">
-                    {[240, 360, 400, 600].map((val) => (
+                  <div className="col-lg-10 d-flex gap-1 px-1">
+                    {[240, 360, 400, 500, 600, 610, 700].map((val) => (
                       <label
                         key={val}
                         className={`segment ${Number(challanToPartiesQty) === val ? "selected" : ""}`}
@@ -479,7 +518,7 @@ const ChallanModal = () => {
                       </label>
                     ))}
                   </div>
-                  <div className="col-lg-6">
+                  <div className="col-lg-2">
                     <input
                       type="number"
                       placeholder="Custom"
@@ -491,6 +530,18 @@ const ChallanModal = () => {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="form-group">
+              <input
+                type="number"
+                name="challanToPartiesRate"
+                placeholder="Enter Rate"
+                step="0.01"
+                value={challanToPartiesRate}
+                onChange={handleToPartyChange}
+                className="form-input"
+              />
             </div>
 
             <div className="add-to-parties-container">
